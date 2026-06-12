@@ -28,7 +28,8 @@
     ],
     "additionalDirectories": [
       "c:\\Users\\usuario\\AppData\\Local\\Temp",
-      "c:\\Users\\usuario\\Downloads\\CMVA-SOFTWARE\\CMVA IMAGENES DIAGNOSTICAS\\cmva_app\\static"
+      "c:\\Users\\usuario\\Downloads\\CMVA-SOFTWARE\\CMVA IMAGENES DIAGNOSTICAS\\cmva_app\\static",
+      "c:\\Users\\usuario\\Downloads\\CMVA-SOFTWARE\\CMVA IMAGENES DIAGNOSTICAS\\cmva_app\\static\\img"
     ]
   }
 }

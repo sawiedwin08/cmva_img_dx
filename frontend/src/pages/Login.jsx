@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import logo from '../assets/logo.png'
 
 export default function Login() {
   const { login } = useAuth()
@@ -31,8 +32,8 @@ export default function Login() {
       <div className="card shadow-lg" style={{ width: '100%', maxWidth: 400 }}>
         <div className="card-body p-4">
           <div className="text-center mb-4">
-            <i className="fa-solid fa-x-ray fa-3x text-primary mb-2" />
-            <h4 className="fw-bold">CMVA – Imágenes Diagnósticas</h4>
+            <img src={logo} alt="CMVA Logo" className="img-fluid mb-3" style={{ maxHeight: 80 }} />
+            <h4 className="fw-bold">Imágenes Diagnósticas</h4>
             <p className="text-muted small">Ingrese sus credenciales para continuar</p>
           </div>
 
