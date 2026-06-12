@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CMVA – Imágenes Diagnósticas{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark cmva-navbar">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="/registros">
+      <i class="fa-solid fa-x-ray me-2"></i>CMVA – Imágenes Diagnósticas
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      {% if user %}
+      <div class="navbar-nav align-items-center">
+        <span class="navbar-text me-3 text-white-50">
+          <i class="fa-solid fa-user-circle me-1"></i>
+          <strong class="text-white">{{ user.nombre_completo }}</strong>
+          <span class="badge bg-secondary ms-1">{{ user.rol.nombre }}</span>
+        </span>
+        <a href="/cambiar-password" class="btn btn-outline-light btn-sm me-2">
+          <i class="fa-solid fa-key me-1"></i>Contraseña
+        </a>
+        <a href="/logout" class="btn btn-danger btn-sm">
+          <i class="fa-solid fa-right-from-bracket me-1"></i>Salir
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="row">
+    {% if user %}
+    <nav class="col-md-2 d-md-block cmva-sidebar py-3">
+      <ul class="nav flex-column">
+
+        <!-- Registros: todos los roles -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path == '/registros' %}active{% endif %}" href="/registros">
+            <i class="fa-solid fa-list-ul me-2"></i>Registros
+          </a>
+        </li>
+
+        <!-- Nuevo estudio: solo TECNOLOGO y Administrador -->
+        {% if user.rol.nombre in ['TECNOLOGO', 'ADMINISTRADOR'] %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path == '/registros/nuevo' %}active{% endif %}" href="/registros/nuevo">
+            <i class="fa-solid fa-plus-circle me-2"></i>Nuevo Estudio
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- Pendientes: solo RADIOLOGO -->
+        {% if user.rol.nombre == 'RADIOLOGO' %}
+        <li class="nav-item">
+          <a class="nav-link" href="/registros?estado=PENDIENTE">
+            <i class="fa-solid fa-clock me-2"></i>Pendientes de Lectura
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- Dashboard: Administrador y Consulta/Gerencia -->
+        {% if user.rol.nombre in ['ADMINISTRADOR', 'CONSULTA/GERENCIA'] %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path.startswith('/dashboard') %}active{% endif %}" href="/dashboard/">
+            <i class="fa-solid fa-chart-bar me-2"></i>Dashboard
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- Módulo de Administración: solo Administrador -->
+        <!-- Manual: todos los roles -->
+        <li class="nav-item mt-3">
+          <a class="nav-link {% if request.url.path == '/manual' %}active{% endif %}" href="/manual">
+            <i class="fa-solid fa-book-open me-2"></i>Manual de Usuario
+          </a>
+        </li>
+
+        {% if user.rol.nombre == 'ADMINISTRADOR' %}
+        <li class="nav-item mt-2">
+          <small class="text-uppercase text-secondary px-3 fw-bold" style="font-size:0.7rem">Administración</small>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path.startswith('/admin/usuarios') %}active{% endif %}" href="/admin/usuarios">
+            <i class="fa-solid fa-users me-2"></i>Usuarios
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path.startswith('/catalogos') %}active{% endif %}" href="/catalogos/">
+            <i class="fa-solid fa-book me-2"></i>Catálogos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path.startswith('/auditoria') %}active{% endif %}" href="/auditoria/">
+            <i class="fa-solid fa-shield-halved me-2"></i>Auditoría
+          </a>
+        </li>
+        {% endif %}
+
+      </ul>
+    </nav>
+
+    <main class="col-md-10 cmva-main py-3 px-4">
+    {% else %}
+    <main class="col-12 py-3 px-4">
+    {% endif %}
+
+      {% if flash %}
+        {% if flash.success %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fa-solid fa-circle-check me-2"></i>{{ flash.success }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+        {% if flash.error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fa-solid fa-circle-exclamation me-2"></i>{{ flash.error }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+        {% if flash.warning %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ flash.warning }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+        {% if flash.info %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+          <i class="fa-solid fa-circle-info me-2"></i>{{ flash.info }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

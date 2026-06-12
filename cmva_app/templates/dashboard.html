@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – CMVA{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0"><i class="fa-solid fa-chart-bar me-2 text-primary"></i>Dashboard Estadístico</h4>
+  <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#filtrosDash">
+    <i class="fa-solid fa-filter me-1"></i>Filtros
+  </button>
+</div>
+
+<!-- Filtros -->
+<div class="collapse {% if params.fecha_desde or params.tecnologo_id or params.tipo_estudio_principal %}show{% endif %}" id="filtrosDash">
+  <div class="card card-body mb-3 bg-light border-0">
+    <form method="GET" action="/dashboard/" class="row g-2">
+      <div class="col-md-2"><label class="form-label small fw-semibold">Fecha desde</label>
+        <input type="date" name="fecha_desde" class="form-control form-control-sm" value="{{ params.fecha_desde }}"></div>
+      <div class="col-md-2"><label class="form-label small fw-semibold">Fecha hasta</label>
+        <input type="date" name="fecha_hasta" class="form-control form-control-sm" value="{{ params.fecha_hasta }}"></div>
+      <div class="col-md-2"><label class="form-label small fw-semibold">Tipo de Estudio</label>
+        <select name="tipo_estudio_principal" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          <option value="RX" {% if params.tipo_estudio_principal == 'RX' %}selected{% endif %}>Rayos X (RX)</option>
+          <option value="TAC" {% if params.tipo_estudio_principal == 'TAC' %}selected{% endif %}>TAC</option>
+          <option value="ECO" {% if params.tipo_estudio_principal == 'ECO' %}selected{% endif %}>Ecografía (ECO)</option>
+        </select></div>
+      <div class="col-md-2"><label class="form-label small fw-semibold">TECNOLOGO</label>
+        <select name="tecnologo_id" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          {% for t in tecnologos %}<option value="{{ t.id }}" {% if params.tecnologo_id == t.id|string %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}
+        </select></div>
+      <div class="col-md-2"><label class="form-label small fw-semibold">RADIOLOGO</label>
+        <select name="radiologo_id" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          {% for r in radiologos %}<option value="{{ r.id }}" {% if params.radiologo_id == r.id|string %}selected{% endif %}>{{ r.nombre }}</option>{% endfor %}
+        </select></div>
+      <div class="col-md-2"><label class="form-label small fw-semibold">Servicio</label>
+        <select name="servicio_id" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          {% for s in servicios %}<option value="{{ s.id }}" {% if params.servicio_id == s.id|string %}selected{% endif %}>{{ s.nombre }}</option>{% endfor %}
+        </select></div>
+      <div class="col-md-2 d-flex align-items-end gap-2">
+        <button type="submit" class="btn cmva-btn-primary btn-sm flex-fill">Aplicar</button>
+        <a href="/dashboard/" class="btn btn-outline-secondary btn-sm flex-fill">Limpiar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- KPIs principales -->
+<p class="text-muted small mb-2"><i class="fa-solid fa-hand-pointer me-1"></i>Clic en una tarjeta para filtrar gráficos y registros</p>
+<div class="row g-3 mb-3">
+  <div class="col-6 col-md-3">
+    <div class="card shadow-sm border-0 text-center kpi-card kpi-total" id="kpi-all" onclick="setFilter('all')" role="button" tabindex="0">
+      <div class="card-body py-3">
+        <div class="kpi-number">{{ total }}</div>
+        <div class="kpi-label">Total Estudios{% if params.tipo_estudio_principal %} ({{ params.tipo_estudio_principal }}){% endif %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card shadow-sm border-0 text-center kpi-card kpi-pendiente" id="kpi-pendiente" onclick="setFilter('pendiente')" role="button" tabindex="0">
+      <div class="card-body py-3">
+        <div class="kpi-number">{{ pendientes }}</div>
+        <div class="kpi-label">Pendientes de Lectura</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card shadow-sm border-0 text-center kpi-card kpi-leido" id="kpi-leido" onclick="setFilter('leido')" role="button" tabindex="0">
+      <div class="card-body py-3">
+        <div class="kpi-number">{{ leidos }}</div>
+        <div class="kpi-label">Leídos / Completados</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card shadow-sm border-0 text-center kpi-card kpi-rechazado" id="kpi-rechazado" onclick="setFilter('rechazado')" role="button" tabindex="0">
+      <div class="card-body py-3">
+        <div class="kpi-number">{{ rechazados }} <small class="fs-6">({{ pct_rechazados }}%)</small></div>
+        <div class="kpi-label">Estudios Rechazados</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KPIs por tipo de estudio (basados en el período seleccionado, sin filtro de tipo) -->
+<div class="row g-3 mb-3">
+  <div class="col-4">
+    <div class="card shadow-sm border-0 text-center" style="border-left: 4px solid #0d6efd !important; cursor:pointer"
+         onclick="window.location='/dashboard/?tipo_estudio_principal=RX&fecha_desde={{ params.fecha_desde }}&fecha_hasta={{ params.fecha_hasta }}'">
+      <div class="card-body py-2">
+        <div class="fw-bold fs-4 text-primary">{{ rx_total }}</div>
+        <div class="small text-muted"><i class="fa-solid fa-x-ray me-1"></i>Rayos X (RX)</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="card shadow-sm border-0 text-center" style="border-left: 4px solid #0dcaf0 !important; cursor:pointer"
+         onclick="window.location='/dashboard/?tipo_estudio_principal=TAC&fecha_desde={{ params.fecha_desde }}&fecha_hasta={{ params.fecha_hasta }}'">
+      <div class="card-body py-2">
+        <div class="fw-bold fs-4 text-info">{{ tac_total }}</div>
+        <div class="small text-muted"><i class="fa-solid fa-brain me-1"></i>TAC</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="card shadow-sm border-0 text-center" style="border-left: 4px solid #198754 !important; cursor:pointer"
+         onclick="window.location='/dashboard/?tipo_estudio_principal=ECO&fecha_desde={{ params.fecha_desde }}&fecha_hasta={{ params.fecha_hasta }}'">
+      <div class="card-body py-2">
+        <div class="fw-bold fs-4 text-success">{{ eco_total }}</div>
+        <div class="small text-muted"><i class="fa-solid fa-wave-square me-1"></i>Ecografía (ECO)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Indicador de filtro activo -->
+<div class="d-flex align-items-center gap-2 mb-3">
+  <span class="text-muted small">Mostrando:</span>
+  <span class="badge px-2 py-1" id="filtro-label" style="background:var(--cmva-dark)">Todos los estudios</span>
+</div>
+
+<!-- Gráficos -->
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header cmva-card-header"><h6 class="mb-0 text-white">Estudios por Servicio</h6></div>
+      <div class="card-body"><canvas id="chartServicio" height="200"></canvas></div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header cmva-card-header"><h6 class="mb-0 text-white">Top 10 Tipos de Estudio más Realizados</h6></div>
+      <div class="card-body"><canvas id="chartEstudio" height="200"></canvas></div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header cmva-card-header"><h6 class="mb-0 text-white">Estudios por TECNOLOGO</h6></div>
+      <div class="card-body"><canvas id="chartTecnologo" height="200"></canvas></div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-header cmva-card-header"><h6 class="mb-0 text-white">Rechazados vs No Rechazados</h6></div>
+      <div class="card-body d-flex justify-content-center"><canvas id="chartRechazados" height="220"></canvas></div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-header cmva-card-header"><h6 class="mb-0 text-white">Distribución por Tipo</h6></div>
+      <div class="card-body d-flex justify-content-center"><canvas id="chartTipo" height="220"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabla dinámica de registros -->
+<div class="card shadow-sm">
+  <div class="card-header cmva-card-header d-flex justify-content-between align-items-center">
+    <h6 class="mb-0 text-white">
+      <i class="fa-solid fa-table-list me-2"></i>
+      <span id="tabla-titulo">Todos los Registros</span>
+    </h6>
+    <span class="badge bg-light text-dark" id="tabla-count">{{ total }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover cmva-table mb-0" style="table-layout:fixed;min-width:700px">
+      <colgroup>
+        <col style="width:110px">
+        <col style="width:60px">
+        <col style="width:100px">
+        <col>
+        <col>
+        <col style="width:115px">
+        <col style="width:120px">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Tipo</th>
+          <th>Fecha</th>
+          <th>Paciente</th>
+          <th>Estudio</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-body"></tbody>
+    </table>
+  </div>
+  <div class="card-footer bg-light small text-muted py-2" id="tabla-footer"></div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const COLORS = ['#1a3c5e','#2980b9','#27ae60','#f39c12','#e74c3c','#8e44ad','#16a085','#d35400','#2c3e50','#7f8c8d'];
+const ALL = {{ registros_list | tojson }};
+const CH = {};
+
+function makeBar(id, labels, data, color) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return null;
+  return new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: color || COLORS, borderRadius: 4 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+}
+
+CH.svc = makeBar('chartServicio',
+  {{ por_servicio | map(attribute=0) | list | tojson }},
+  {{ por_servicio | map(attribute=1) | list | tojson }}
+);
+CH.est = makeBar('chartEstudio',
+  {{ por_estudio | map(attribute=0) | list | tojson }},
+  {{ por_estudio | map(attribute=1) | list | tojson }},
+  '#2980b9'
+);
+CH.tec = makeBar('chartTecnologo',
+  {{ por_tecnologo | map(attribute=0) | list | tojson }},
+  {{ por_tecnologo | map(attribute=1) | list | tojson }},
+  '#27ae60'
+);
+
+const piCtx = document.getElementById('chartRechazados');
+if (piCtx) {
+  CH.pie = new Chart(piCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['No Rechazados', 'Rechazados'],
+      datasets: [{ data: [{{ total - rechazados }}, {{ rechazados }}], backgroundColor: ['#27ae60','#e74c3c'] }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+}
+
+const tipoCtx = document.getElementById('chartTipo');
+if (tipoCtx) {
+  CH.tipo = new Chart(tipoCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Rayos X', 'TAC', 'Ecografía'],
+      datasets: [{ data: [{{ rx_total }}, {{ tac_total }}, {{ eco_total }}], backgroundColor: ['#0d6efd','#0dcaf0','#198754'] }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+}
+
+function aggBy(recs) {
+  const s = {}, e = {}, t = {}, tipo = { RX: 0, TAC: 0, ECO: 0 };
+  recs.forEach(r => {
+    s[r.servicio] = (s[r.servicio] || 0) + 1;
+    e[r.estudio]  = (e[r.estudio]  || 0) + 1;
+    t[r.tecnologo]= (t[r.tecnologo]|| 0) + 1;
+    const tp = r.tipo || 'RX';
+    tipo[tp] = (tipo[tp] || 0) + 1;
+  });
+  const top = (o, n) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, n || 50);
+  return { svc: top(s), est: top(e, 10), tec: top(t), tipo };
+}
+
+function upBar(ch, pairs) {
+  if (!ch) return;
+  ch.data.labels = pairs.map(x => x[0]);
+  ch.data.datasets[0].data = pairs.map(x => x[1]);
+  ch.update('none');
+}
+
+function tipoBadge(tipo) {
+  if (tipo === 'RX')  return '<span class="badge bg-primary">RX</span>';
+  if (tipo === 'TAC') return '<span class="badge bg-info text-dark">TAC</span>';
+  if (tipo === 'ECO') return '<span class="badge bg-success">ECO</span>';
+  return `<span class="badge bg-secondary">${tipo}</span>`;
+}
+
+function estadoBadge(r) {
+  if (r.rechazada) return '<span class="badge" style="background:#e74c3c;color:#fff">RECHAZADO</span>';
+  if (r.estado === 'PENDIENTE') return '<span class="badge status-pendiente">PENDIENTE</span>';
+  if (r.estado === 'LEIDO')     return '<span class="badge status-leido">LEÍDO</span>';
+  return `<span class="badge bg-secondary">${r.estado}</span>`;
+}
+
+function renderTable(recs) {
+  const show = recs.slice(0, 50);
+  document.getElementById('tabla-body').innerHTML = show.map(r => `
+    <tr>
+      <td><a href="/registros/${r.id}" class="text-decoration-none fw-semibold">${r.codigo}</a></td>
+      <td>${tipoBadge(r.tipo)}</td>
+      <td class="text-nowrap">${r.fecha}</td>
+      <td class="text-truncate" title="${r.paciente}">${r.paciente}</td>
+      <td class="text-truncate" title="${r.estudio}">${r.estudio}</td>
+      <td>${estadoBadge(r)}</td>
+      <td>
+        <a href="/registros/${r.id}" class="btn btn-outline-secondary btn-xs">Ver</a>
+        ${r.estado === 'PENDIENTE' ? `<a href="/registros/${r.id}/lectura" class="btn btn-success btn-xs ms-1">Leer</a>` : ''}
+      </td>
+    </tr>`).join('');
+  document.getElementById('tabla-count').textContent = recs.length;
+  document.getElementById('tabla-footer').textContent =
+    recs.length > 50
+      ? `Mostrando primeros 50 de ${recs.length} registros`
+      : `${recs.length} registros`;
+}
+
+const FILTER_LABEL = {
+  all:       'Todos los estudios',
+  pendiente: 'Pendientes de Lectura',
+  leido:     'Leídos / Completados',
+  rechazado: 'Estudios Rechazados'
+};
+const FILTER_TITLE = {
+  all:       'Todos los Registros',
+  pendiente: 'Pendientes de Lectura',
+  leido:     'Leídos / Completados',
+  rechazado: 'Estudios Rechazados'
+};
+
+function setFilter(f) {
+  ['all', 'pendiente', 'leido', 'rechazado'].forEach(k => {
+    const el = document.getElementById('kpi-' + k);
+    if (!el) return;
+    el.classList.toggle('kpi-active',   k === f);
+    el.classList.toggle('kpi-inactive', k !== f);
+  });
+
+  const recs = f === 'pendiente' ? ALL.filter(r => r.estado === 'PENDIENTE')
+             : f === 'leido'     ? ALL.filter(r => r.estado === 'LEIDO')
+             : f === 'rechazado' ? ALL.filter(r => r.rechazada)
+             : ALL;
+
+  const a = aggBy(recs);
+  upBar(CH.svc, a.svc);
+  upBar(CH.est, a.est);
+  upBar(CH.tec, a.tec);
+
+  if (CH.pie) {
+    const rej = recs.filter(r => r.rechazada).length;
+    CH.pie.data.datasets[0].data = [recs.length - rej, rej];
+    CH.pie.update('none');
+  }
+
+  if (CH.tipo) {
+    CH.tipo.data.datasets[0].data = [a.tipo.RX || 0, a.tipo.TAC || 0, a.tipo.ECO || 0];
+    CH.tipo.update('none');
+  }
+
+  document.getElementById('filtro-label').textContent  = FILTER_LABEL[f];
+  document.getElementById('tabla-titulo').textContent   = FILTER_TITLE[f];
+  renderTable(recs);
+}
+
+setFilter('all');
+</script>
+{% endblock %}

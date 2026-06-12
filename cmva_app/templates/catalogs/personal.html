@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} – CMVA{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">
+    <i class="fa-solid fa-{{ icono }} me-2 text-primary"></i>{{ titulo }}
+  </h4>
+  <div class="d-flex gap-2">
+    <a href="/catalogos/" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-arrow-left me-1"></i>Catálogos
+    </a>
+    <button class="btn cmva-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevo">
+      <i class="fa-solid fa-plus me-1"></i>Nuevo
+    </button>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0 cmva-table">
+      <thead>
+        <tr>
+          <th>Tipo Doc.</th>
+          <th>Nº Documento</th>
+          <th>Nombre Completo</th>
+          <th>Usuario</th>
+          <th>Clave</th>
+          <th>Correo</th>
+          {% if con_especialidad %}<th>Especialidad</th>{% endif %}
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        {% set u = item.usuario %}
+        <tr class="{% if not item.estado %}table-secondary text-muted{% endif %}">
+          <td>{{ u.tipo_documento if u else '—' }}</td>
+          <td>{{ u.numero_documento if u else '—' }}</td>
+          <td class="fw-semibold">{{ item.nombre }}</td>
+          <td>{% if u %}<code>{{ u.usuario }}</code>{% else %}<span class="text-muted small">Sin cuenta</span>{% endif %}</td>
+          <td>{% if u %}<span class="text-muted">••••••••</span>{% else %}—{% endif %}</td>
+          <td class="small">{{ u.correo if u else '—' }}</td>
+          {% if con_especialidad %}
+          <td class="small">{{ item.especialidad.nombre if item.especialidad else '—' }}</td>
+          {% endif %}
+          <td>
+            {% if item.estado %}<span class="badge bg-success">Activo</span>
+            {% else %}<span class="badge bg-secondary">Inactivo</span>{% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-outline-warning btn-xs" data-bs-toggle="modal"
+                      data-bs-target="#modalEdit{{ item.id }}">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <form method="POST" action="/catalogos/{{ catalog }}/{{ item.id }}/toggle-personal" class="d-inline">
+                <button type="submit"
+                        class="btn btn-xs {% if item.estado %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                        title="{% if item.estado %}Inactivar{% else %}Activar{% endif %}">
+                  <i class="fa-solid fa-{% if item.estado %}toggle-on{% else %}toggle-off{% endif %}"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Modal Editar -->
+        <div class="modal fade" id="modalEdit{{ item.id }}" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header cmva-card-header text-white">
+                <h6 class="modal-title">Editar: {{ item.nombre }}</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <form method="POST" action="/catalogos/{{ catalog }}/{{ item.id }}/editar-personal">
+                <div class="modal-body">
+                  <div class="row g-3">
+                    <div class="col-md-3">
+                      <label class="form-label fw-semibold">Tipo documento</label>
+                      <input type="text" name="tipo_documento" class="form-control"
+                             value="{{ u.tipo_documento if u else '' }}" placeholder="CC, CE, TI...">
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label fw-semibold">Nº documento</label>
+                      <input type="text" name="numero_documento" class="form-control"
+                             value="{{ u.numero_documento if u else '' }}">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold">Nombre completo <span class="text-danger">*</span></label>
+                      <input type="text" name="nombre_completo" class="form-control" required
+                             value="{{ item.nombre }}" style="text-transform:uppercase">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold">Usuario de acceso</label>
+                      <input type="text" class="form-control bg-light"
+                             value="{{ u.usuario if u else '—' }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold">
+                        Nueva clave <span class="text-muted small">(vacío = no cambia)</span>
+                      </label>
+                      <input type="password" name="nuevo_password" class="form-control"
+                             placeholder="Dejar vacío para no cambiar" minlength="3">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold">Correo</label>
+                      <input type="email" name="correo" class="form-control"
+                             value="{{ u.correo if u else '' }}">
+                    </div>
+                    {% if con_especialidad %}
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold">Especialidad</label>
+                      <select name="especialidad_id" class="form-select">
+                        <option value="">-- Ninguna --</option>
+                        {% for e in especialidades %}
+                        <option value="{{ e.id }}" {% if item.especialidad_id == e.id %}selected{% endif %}>{{ e.nombre }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn cmva-btn-primary">Guardar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <tr><td colspan="9" class="text-center text-muted py-3">No hay registros. Cree el primero.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Nuevo -->
+<div class="modal fade" id="modalNuevo" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header cmva-card-header text-white">
+        <h6 class="modal-title"><i class="fa-solid fa-plus me-2"></i>Nuevo {{ titulo[:-1] if titulo.endswith('s') else titulo }}</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="/catalogos/{{ catalog }}/nuevo-personal">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Tipo documento</label>
+              <input type="text" name="tipo_documento" class="form-control" placeholder="CC, CE, TI...">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Nº documento</label>
+              <input type="text" name="numero_documento" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Nombre completo <span class="text-danger">*</span></label>
+              <input type="text" name="nombre_completo" class="form-control" required
+                     placeholder="APELLIDO NOMBRE" style="text-transform:uppercase">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Usuario de acceso <span class="text-danger">*</span></label>
+              <input type="text" name="usuario_login" class="form-control" required placeholder="nombre.usuario">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Clave <span class="text-danger">*</span></label>
+              <input type="password" name="password" class="form-control" required minlength="3">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Correo</label>
+              <input type="email" name="correo" class="form-control">
+            </div>
+            {% if con_especialidad %}
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Especialidad</label>
+              <select name="especialidad_id" class="form-select">
+                <option value="">-- Ninguna --</option>
+                {% for e in especialidades %}
+                <option value="{{ e.id }}">{{ e.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn cmva-btn-primary">
+            <i class="fa-solid fa-floppy-disk me-2"></i>Crear
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

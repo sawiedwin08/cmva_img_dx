@@ -1,0 +1,89 @@
+/* CMVA – Imágenes Diagnósticas – Custom Styles */
+
+:root {
+  --cmva-dark: #1a3c5e;
+  --cmva-mid: #2980b9;
+  --cmva-light: #d6eaf8;
+  --cmva-tecnologo: #1a5276;
+  --cmva-radiologo: #1e8449;
+}
+
+/* Navbar */
+.cmva-navbar { background: var(--cmva-dark) !important; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+/* Sidebar */
+.cmva-sidebar {
+  background: #f8f9fa;
+  min-height: calc(100vh - 56px);
+  border-right: 1px solid #dee2e6;
+}
+.cmva-sidebar .nav-link {
+  color: #495057;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin: 1px 0;
+  font-size: 0.875rem;
+  transition: background 0.15s;
+}
+.cmva-sidebar .nav-link:hover { background: var(--cmva-light); color: var(--cmva-dark); }
+.cmva-sidebar .nav-link.active { background: var(--cmva-dark); color: white; }
+
+/* Main content */
+.cmva-main { background: #fff; }
+
+/* Buttons */
+.cmva-btn-primary { background: var(--cmva-dark); border-color: var(--cmva-dark); color: white; }
+.cmva-btn-primary:hover { background: var(--cmva-mid); border-color: var(--cmva-mid); color: white; }
+
+/* Card headers */
+.cmva-card-header { background: var(--cmva-dark); color: white; }
+.cmva-block-tecnologo { background: var(--cmva-tecnologo); }
+.cmva-block-radiologo { background: var(--cmva-radiologo); }
+
+/* Status badges */
+.status-pendiente { background: #f39c12; color: white; }
+.status-leido { background: #27ae60; color: white; }
+.status-anulado { background: #7f8c8d; color: white; }
+.status-corregido { background: #8e44ad; color: white; }
+
+/* Table */
+.cmva-table thead th {
+  background: var(--cmva-dark);
+  color: white;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  padding: 0.5rem 0.4rem;
+}
+.cmva-table td { font-size: 0.82rem; vertical-align: middle; padding: 0.3rem 0.4rem; }
+
+/* Small buttons */
+.btn-xs { padding: 0.15rem 0.35rem; font-size: 0.75rem; }
+
+/* KPI Cards */
+.kpi-card { border-radius: 12px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s; user-select: none; }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.13) !important; }
+.kpi-card.kpi-inactive { opacity: 0.4; }
+.kpi-total.kpi-active   { background: #e8f0f8 !important; }
+.kpi-pendiente.kpi-active { background: #fef9e7 !important; }
+.kpi-leido.kpi-active   { background: #eafaf1 !important; }
+.kpi-rechazado.kpi-active { background: #fdedec !important; }
+.kpi-number { font-size: 2.5rem; font-weight: 700; line-height: 1; }
+.kpi-label { font-size: 0.85rem; color: #6c757d; margin-top: 4px; }
+.kpi-total { border-left: 5px solid var(--cmva-dark) !important; }
+.kpi-pendiente { border-left: 5px solid #f39c12 !important; }
+.kpi-leido { border-left: 5px solid #27ae60 !important; }
+.kpi-rechazado { border-left: 5px solid #e74c3c !important; }
+
+/* Detail labels */
+.label-sm { font-size: 0.75rem; color: #6c757d; margin-bottom: 2px; display: block; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.val-sm { font-size: 0.9rem; margin-bottom: 0; }
+
+/* Catalog cards */
+.catalog-card { transition: transform 0.15s, box-shadow 0.15s; }
+.catalog-card:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important; }
+
+/* Responsive table */
+@media (max-width: 768px) {
+  .cmva-sidebar { display: none; }
+  .cmva-main { padding: 1rem; }
+}

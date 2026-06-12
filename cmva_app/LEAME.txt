@@ -1,0 +1,45 @@
+================================================
+CMVA - Imagenes Diagnosticas - Rayos X
+Sistema Web de Registro Radiologico
+================================================
+
+USUARIO INICIAL:
+  Usuario:    admin
+  Contrasena: Admin2024*
+  (Cambiar en primera sesion desde menu "Contrasena")
+
+INICIAR EL SERVIDOR LOCAL:
+  1. Doble click en: iniciar_servidor.bat
+  2. Abrir navegador en: http://localhost:8000
+
+ACCESO DESDE INTERNET (Railway):
+  1. Crear cuenta en https://railway.app
+  2. Crear nuevo proyecto -> "Deploy from GitHub" o "Deploy from source"
+  3. Subir la carpeta cmva_app
+  4. Agregar variable de entorno: SECRET_KEY=<clave-segura>
+  5. Railway genera URL publica automaticamente
+
+ROLES DEL SISTEMA:
+  ADMINISTRADOR  - Acceso total
+  TECNOLOGO      - Registra estudios (campos A-M)
+  RADIOLOGO      - Completa lectura (campos N-Q)
+  CONSULTA/GERENCIA - Solo consulta y exportacion
+
+MODULOS:
+  /registros     - Lista de registros
+  /registros/nuevo - Nuevo estudio (Tecnologo)
+  /dashboard/    - Estadisticas (Admin/Gerencia/Radiologo)
+  /catalogos/    - Catalogos (solo Admin)
+  /admin/usuarios - Gestion usuarios (solo Admin)
+  /auditoria/    - Auditoria (solo Admin)
+  /exportar/excel - Descarga Excel
+  /exportar/txt   - Descarga TXT
+
+IMPORTAR DATOS HISTORICOS (ya realizado):
+  python import_excel.py "../Informe de rayos X CMVA.xlsx"
+
+BASE DE DATOS:
+  Archivo: cmva_rayosx.db (SQLite, en carpeta cmva_app)
+  Hacer copias de seguridad periodicas de este archivo.
+
+================================================

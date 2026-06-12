@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Catálogos – CMVA{% endblock %}
+{% block content %}
+<h4 class="mb-4"><i class="fa-solid fa-book me-2 text-primary"></i>Módulo de Catálogos</h4>
+<div class="row g-3">
+  {% set cats = [
+    ('estudios', 'Estudios Radiológicos', 'fa-x-ray', 'primary'),
+    ('profesionales', 'Profesionales (Médicos)', 'fa-user-doctor', 'info'),
+    ('servicios', 'Servicios', 'fa-hospital', 'info'),
+    ('causas-rechazo', 'Causas de Rechazo', 'fa-circle-xmark', 'danger'),
+    ('tecnologos', 'TECNOLOGOs', 'fa-user-nurse', 'secondary'),
+    ('radiologos', 'RADIOLOGOs', 'fa-stethoscope', 'success'),
+    ('transcriptoras', 'Transcriptoras', 'fa-keyboard', 'warning'),
+    ('reportes', 'Reportes', 'fa-file-medical', 'dark'),
+    ('especialidades', 'Especialidades', 'fa-graduation-cap', 'primary'),
+  ] %}
+  {% for slug, title, icon, color in cats %}
+  <div class="col-md-3">
+    <a href="/catalogos/{{ slug }}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 border-0 catalog-card">
+        <div class="card-body text-center py-4">
+          <i class="fa-solid {{ icon }} fa-2x text-{{ color }} mb-3"></i>
+          <h6 class="fw-semibold text-dark">{{ title }}</h6>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

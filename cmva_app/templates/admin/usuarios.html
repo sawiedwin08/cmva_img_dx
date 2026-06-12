@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}Usuarios – CMVA{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0"><i class="fa-solid fa-users me-2 text-primary"></i>Gestión de Usuarios</h4>
+  <div class="d-flex gap-2">
+    <a href="/admin/usuarios/template-excel" class="btn btn-outline-success btn-sm">
+      <i class="fa-solid fa-file-excel me-1"></i>Plantilla Excel
+    </a>
+    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalImportar">
+      <i class="fa-solid fa-file-import me-1"></i>Importar Excel
+    </button>
+    <button class="btn cmva-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevo">
+      <i class="fa-solid fa-plus me-1"></i>Nuevo Usuario
+    </button>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0 cmva-table">
+      <thead>
+        <tr>
+          <th>Fecha Creación</th>
+          <th>Tipo Doc.</th>
+          <th>Nº Documento</th>
+          <th>Nombre Completo</th>
+          <th>Usuario</th>
+          <th>Clave</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr class="{% if not u.estado %}table-secondary text-muted{% endif %}">
+          <td class="small">{{ u.created_at | dt if u.created_at else '—' }}</td>
+          <td>{{ u.tipo_documento or '—' }}</td>
+          <td>{{ u.numero_documento or '—' }}</td>
+          <td class="fw-semibold">{{ u.nombre_completo }}</td>
+          <td><code>{{ u.usuario }}</code></td>
+          <td><span class="text-muted">••••••••</span></td>
+          <td class="small">{{ u.correo or '—' }}</td>
+          <td><span class="badge bg-primary">{{ u.rol.nombre }}</span></td>
+          <td>
+            {% if u.estado %}<span class="badge bg-success">Activo</span>
+            {% else %}<span class="badge bg-secondary">Inactivo</span>{% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-outline-warning btn-xs" title="Editar"
+                      data-bs-toggle="modal" data-bs-target="#modalEdit{{ u.id }}">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              {% if u.usuario not in ['admin', 'ADM'] %}
+              <form method="POST" action="/admin/usuarios/{{ u.id }}/toggle" class="d-inline">
+                <button type="submit"
+                        class="btn btn-xs {% if u.estado %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                        title="{% if u.estado %}Inactivar{% else %}Activar{% endif %}">
+                  <i class="fa-solid fa-{% if u.estado %}toggle-on{% else %}toggle-off{% endif %}"></i>
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+
+        <!-- Modal Editar -->
+        <div class="modal fade" id="modalEdit{{ u.id }}" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header cmva-card-header text-white">
+                <h6 class="modal-title">Editar usuario: {{ u.nombre_completo }}</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <form method="POST" action="/admin/usuarios/{{ u.id }}/editar">
+                <div class="modal-body">
+                  <div class="row g-3">
+                    <div class="col-md-3">
+                      <label class="form-label fw-semibold">Tipo documento</label>
+                      <input type="text" name="tipo_documento" class="form-control"
+                             value="{{ u.tipo_documento or '' }}" placeholder="CC, CE, TI...">
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label fw-semibold">Nº documento</label>
+                      <input type="text" name="numero_documento" class="form-control"
+                             value="{{ u.numero_documento or '' }}">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold">Nombre completo <span class="text-danger">*</span></label>
+                      <input type="text" name="nombre_completo" class="form-control" required
+                             value="{{ u.nombre_completo }}" style="text-transform:uppercase">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold">Usuario de acceso</label>
+                      <input type="text" class="form-control bg-light" value="{{ u.usuario }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold">
+                        Nueva clave <span class="text-muted small">(vacío = no cambia)</span>
+                      </label>
+                      <input type="password" name="nuevo_password" class="form-control"
+                             placeholder="Dejar vacío para no cambiar" minlength="3">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-semibold">Correo</label>
+                      <input type="email" name="correo" class="form-control" value="{{ u.correo or '' }}">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold">Rol <span class="text-danger">*</span></label>
+                      <select name="rol_id" class="form-select" required>
+                        {% for r in roles %}
+                        <option value="{{ r.id }}" {% if u.rol_id == r.id %}selected{% endif %}>{{ r.nombre }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn cmva-btn-primary">Guardar cambios</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <tr><td colspan="10" class="text-center text-muted py-3">No hay usuarios registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Nuevo Usuario -->
+<div class="modal fade" id="modalNuevo" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header cmva-card-header text-white">
+        <h6 class="modal-title"><i class="fa-solid fa-user-plus me-2"></i>Nuevo Usuario</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="/admin/usuarios/nuevo">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Tipo documento</label>
+              <input type="text" name="tipo_documento" class="form-control" placeholder="CC, CE, TI...">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Nº documento</label>
+              <input type="text" name="numero_documento" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Nombre completo <span class="text-danger">*</span></label>
+              <input type="text" name="nombre_completo" class="form-control" required
+                     placeholder="APELLIDO NOMBRE" style="text-transform:uppercase">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Usuario de acceso <span class="text-danger">*</span></label>
+              <input type="text" name="usuario_login" class="form-control" required
+                     placeholder="nombre.usuario">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Clave <span class="text-danger">*</span></label>
+              <input type="password" name="password" class="form-control" required minlength="3">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Correo</label>
+              <input type="email" name="correo" class="form-control" placeholder="correo@cmva.com">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Rol <span class="text-danger">*</span></label>
+              <select name="rol_id" class="form-select" required>
+                <option value="">-- Seleccione --</option>
+                {% for r in roles %}
+                <option value="{{ r.id }}">{{ r.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn cmva-btn-primary">
+            <i class="fa-solid fa-floppy-disk me-2"></i>Crear Usuario
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Importar desde Excel -->
+<div class="modal fade" id="modalImportar" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header cmva-card-header text-white">
+        <h6 class="modal-title"><i class="fa-solid fa-file-import me-2"></i>Importar Usuarios desde Excel</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="/admin/usuarios/importar-excel" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="alert alert-info small">
+            <i class="fa-solid fa-circle-info me-2"></i>
+            Columnas requeridas: <strong>TIPO_DOCUMENTO, NUMERO_DOCUMENTO, NOMBRE_COMPLETO</strong>.<br>
+            Descargue la plantilla con el botón <em>Plantilla Excel</em>.<br>
+            El usuario y clave inicial se generan automáticamente con el número de documento.
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Rol para los usuarios importados <span class="text-danger">*</span></label>
+            <select name="rol_id" class="form-select" required>
+              <option value="">-- Seleccione --</option>
+              {% for r in roles %}
+              <option value="{{ r.id }}">{{ r.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Archivo Excel <span class="text-danger">*</span></label>
+            <input type="file" name="archivo" class="form-control" accept=".xlsx,.xls" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-upload me-2"></i>Importar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

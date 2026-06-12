@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+{% block title %}Manual de Usuario – CMVA Imágenes Diagnósticas{% endblock %}
+
+{% block content %}
+<!-- Encabezado -->
+<div class="d-flex justify-content-between align-items-center mb-4 no-print">
+  <h4 class="mb-0"><i class="fa-solid fa-book-open me-2 text-primary"></i>Manual de Usuario</h4>
+  <button class="btn cmva-btn-primary" onclick="window.print()">
+    <i class="fa-solid fa-file-pdf me-2"></i>Descargar / Imprimir PDF
+  </button>
+</div>
+
+<!-- Portada (solo en impresión) -->
+<div class="print-portada text-center mb-5" style="display:none">
+  <div style="margin-top:80px">
+    <h1 class="fw-bold" style="font-size:2.2rem;color:#1a3c5e">CMVA – Imágenes Diagnósticas</h1>
+    <h2 class="mt-3" style="color:#2980b9">Manual de Usuario</h2>
+    <p class="mt-4 text-muted">Sistema Web de Registro Radiológico</p>
+    <p class="text-muted">Centro Médico Valle de Atriz – CMVA</p>
+    <p class="text-muted mt-5" style="font-size:0.9rem">Versión 2.0 · 2026</p>
+  </div>
+</div>
+
+<!-- Índice -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header cmva-card-header">
+    <h5 class="mb-0 text-white"><i class="fa-solid fa-list me-2"></i>Tabla de Contenido</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <ol class="mb-0">
+          <li><a href="#sec1" class="text-decoration-none">Introducción al Sistema</a></li>
+          <li><a href="#sec2" class="text-decoration-none">Acceso al Sistema</a></li>
+          <li><a href="#sec3" class="text-decoration-none">Roles y Permisos</a></li>
+          <li><a href="#sec4" class="text-decoration-none">Navegación General</a></li>
+          <li><a href="#sec5" class="text-decoration-none">Lista de Registros</a></li>
+          <li><a href="#sec6" class="text-decoration-none">Crear Nuevo Registro (Tecnólogo)</a></li>
+        </ol>
+      </div>
+      <div class="col-md-6">
+        <ol start="7" class="mb-0">
+          <li><a href="#sec7" class="text-decoration-none">Completar Lectura (Radiólogo)</a></li>
+          <li><a href="#sec8" class="text-decoration-none">Consulta y Filtros</a></li>
+          <li><a href="#sec9" class="text-decoration-none">Exportación de Datos</a></li>
+          <li><a href="#sec10" class="text-decoration-none">Dashboard Estadístico</a></li>
+          <li><a href="#sec11" class="text-decoration-none">Catálogos</a></li>
+          <li><a href="#sec12" class="text-decoration-none">Gestión de Usuarios y Auditoría</a></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 1 ────────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec1">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">1</span>Introducción al Sistema</h5>
+  </div>
+  <div class="card-body">
+    <p>El sistema <strong>CMVA – Imágenes Diagnósticas</strong> es una aplicación web diseñada para el Centro Médico Valle de Atriz que permite registrar y gestionar estudios de imágenes diagnósticas: <strong>Rayos X (RX)</strong>, <strong>Tomografía Axial Computarizada (TAC)</strong> y <strong>Ecografía (ECO)</strong>.</p>
+    <p>Reemplaza el manejo manual en hojas de cálculo con un sistema centralizado accesible desde cualquier dispositivo con conexión a internet.</p>
+    <h6 class="fw-bold mt-3">Funcionalidades principales</h6>
+    <ul>
+      <li>Registro de estudios por parte del Tecnólogo (bloque A)</li>
+      <li>Lectura radiológica y decisión de rechazo por parte del Radiólogo (bloque B)</li>
+      <li>Consulta con múltiples filtros y paginación</li>
+      <li>Exportación a Excel y TXT</li>
+      <li>Dashboard estadístico interactivo</li>
+      <li>Gestión de catálogos y usuarios</li>
+      <li>Auditoría completa de cambios</li>
+    </ul>
+    <div class="alert alert-info mt-3 mb-0">
+      <i class="fa-solid fa-circle-info me-2"></i>El sistema opera en zona horaria <strong>America/Bogotá (UTC-5)</strong>. Todas las fechas y horas registradas corresponden a la hora local de Colombia.
+    </div>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 2 ────────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec2">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">2</span>Acceso al Sistema</h5>
+  </div>
+  <div class="card-body">
+    <p>Al ingresar a la URL del sistema se muestra la pantalla de inicio de sesión.</p>
+    <h6 class="fw-bold">Pasos para ingresar</h6>
+    <ol>
+      <li>Ingrese su <strong>nombre de usuario</strong> (asignado por el administrador).</li>
+      <li>Ingrese su <strong>contraseña</strong>.</li>
+      <li>Haga clic en <strong>"Ingresar"</strong>.</li>
+    </ol>
+    <h6 class="fw-bold mt-3">Cambio de contraseña</h6>
+    <p>Desde cualquier pantalla, haga clic en el botón <strong>"Contraseña"</strong> ubicado en la barra superior derecha. Ingrese la contraseña actual y la nueva dos veces para confirmar.</p>
+    <div class="alert alert-warning mt-2 mb-0">
+      <i class="fa-solid fa-triangle-exclamation me-2"></i>Si olvida su contraseña, contacte al Administrador del sistema para que la restablezca.
+    </div>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 3 ────────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec3">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">3</span>Roles y Permisos</h5>
+  </div>
+  <div class="card-body">
+    <p>El sistema maneja cuatro roles con diferentes niveles de acceso:</p>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm">
+        <thead class="table-dark">
+          <tr>
+            <th>Rol</th>
+            <th>Puede hacer</th>
+            <th>No puede hacer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge bg-danger">ADMINISTRADOR</span></td>
+            <td>Todo: crear, editar, leer, exportar, gestionar usuarios, catálogos, auditoría, anular registros</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-primary">TECNOLOGO</span></td>
+            <td>Crear y editar registros (bloque Tecnólogo), exportar, consultar</td>
+            <td>Completar lectura, ver dashboard, gestionar usuarios/catálogos</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-success">RADIOLOGO</span></td>
+            <td>Ver registros, completar lectura radiológica (bloque Radiólogo), exportar</td>
+            <td>Crear/editar registros del tecnólogo, gestionar usuarios/catálogos</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-secondary">CONSULTA/GERENCIA</span></td>
+            <td>Ver registros, filtrar, exportar, ver dashboard</td>
+            <td>Crear, editar ni completar lecturas</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="alert alert-success mt-2 mb-0">
+      <i class="fa-solid fa-shield-halved me-2"></i><strong>Separación de responsabilidades:</strong> El Tecnólogo NO puede modificar los campos del Radiólogo, y el Radiólogo solo ve los campos del Tecnólogo en modo de solo lectura.
+    </div>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 4 ────────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec4">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">4</span>Navegación General</h5>
+  </div>
+  <div class="card-body">
+    <h6 class="fw-bold">Barra lateral (Sidebar)</h6>
+    <p>A la izquierda de la pantalla se encuentra el menú de navegación. Las opciones disponibles varían según el rol del usuario:</p>
+    <ul>
+      <li><i class="fa-solid fa-list-ul me-1"></i><strong>Registros</strong> – Lista de todos los estudios registrados (todos los roles)</li>
+      <li><i class="fa-solid fa-plus-circle me-1"></i><strong>Nuevo Estudio</strong> – Crear un nuevo registro (Tecnólogo y Administrador)</li>
+      <li><i class="fa-solid fa-clock me-1"></i><strong>Pendientes de Lectura</strong> – Filtro rápido de estudios sin leer (Radiólogo)</li>
+      <li><i class="fa-solid fa-chart-bar me-1"></i><strong>Dashboard</strong> – Estadísticas (Administrador y Consulta/Gerencia)</li>
+      <li><i class="fa-solid fa-book-open me-1"></i><strong>Manual de Usuario</strong> – Este documento (todos los roles)</li>
+      <li><i class="fa-solid fa-users me-1"></i><strong>Usuarios</strong> – Gestión de cuentas (solo Administrador)</li>
+      <li><i class="fa-solid fa-book me-1"></i><strong>Catálogos</strong> – Listas de valores (solo Administrador)</li>
+      <li><i class="fa-solid fa-shield-halved me-1"></i><strong>Auditoría</strong> – Historial de cambios (solo Administrador)</li>
+    </ul>
+    <h6 class="fw-bold mt-3">Barra superior</h6>
+    <p>Muestra el nombre del usuario, su rol y los botones de <strong>Cambiar contraseña</strong> y <strong>Salir</strong>.</p>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 5 ────────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec5">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">5</span>Lista de Registros</h5>
+  </div>
+  <div class="card-body">
+    <p>Es la pantalla principal del sistema. Muestra todos los estudios registrados en una tabla paginada (30 registros por página).</p>
+    <h6 class="fw-bold">Columnas de la tabla</h6>
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered">
+        <thead class="table-secondary">
+          <tr><th>Columna</th><th>Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>ID</strong></td><td>Código único del registro. Formato: RX-AAAA-MM-NNNNNN, TAC-AAAA-MM-NNNNNN, ECO-AAAA-MM-NNNNNN</td></tr>
+          <tr><td><strong>Tipo</strong></td><td>Tipo principal del estudio: <span class="badge bg-primary">RX</span>, <span class="badge bg-info text-dark">TAC</span> o <span class="badge bg-success">ECO</span></td></tr>
+          <tr><td><strong>Fecha Toma</strong></td><td>Fecha y hora en que se realizó el estudio</td></tr>
+          <tr><td><strong>Identificación</strong></td><td>Número de documento del paciente</td></tr>
+          <tr><td><strong>Paciente</strong></td><td>Nombre y apellido del paciente</td></tr>
+          <tr><td><strong>Estudio</strong></td><td>Tipo específico (ej. RX TÓRAX, TAC CEREBRO SIMPLE)</td></tr>
+          <tr><td><strong>Servicio</strong></td><td>Servicio de procedencia (URGENCIAS, HOSPITALIZACIÓN, etc.)</td></tr>
+          <tr><td><strong>KV / mAs</strong></td><td>Parámetros técnicos de la toma</td></tr>
+          <tr><td><strong>Rech.</strong></td><td>Indica si el estudio fue rechazado (decisión del Radiólogo)</td></tr>
+          <tr><td><strong>TECNOLOGO</strong></td><td>Tecnólogo que realizó el estudio</td></tr>
+          <tr><td><strong>RADIOLOGO</strong></td><td>Radiólogo que completó la lectura</td></tr>
+          <tr><td><strong>Estado</strong></td><td><span class="badge status-pendiente">PENDIENTE</span> sin lectura · <span class="badge status-leido">LEÍDO</span> con lectura</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h6 class="fw-bold mt-3">Acciones disponibles por registro</h6>
+    <ul>
+      <li><i class="fa-solid fa-eye me-1 text-primary"></i><strong>Ver</strong> – Muestra el detalle completo del registro (todos los roles)</li>
+      <li><i class="fa-solid fa-pen me-1 text-warning"></i><strong>Editar</strong> – Modifica los campos del Tecnólogo (Tecnólogo y Administrador)</li>
+      <li><i class="fa-solid fa-stethoscope me-1 text-success"></i><strong>Completar Lectura</strong> – Abre el formulario de lectura (Radiólogo y Administrador, solo registros PENDIENTES)</li>
+    </ul>
+    <div class="alert alert-info mt-2 mb-0">
+      <i class="fa-solid fa-circle-info me-2"></i>Use el botón <strong>Filtros</strong> para buscar por fecha, tipo de estudio, tecnólogo, radiólogo, servicio, estado, etc.
+    </div>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 6 ────────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec6">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">6</span>Crear Nuevo Registro – Bloque Tecnólogo</h5>
+  </div>
+  <div class="card-body">
+    <p>Accesible desde <strong>Nuevo Estudio</strong> en el menú lateral. Solo disponible para Tecnólogo y Administrador.</p>
+
+    <h6 class="fw-bold mt-3">Paso 1 – Selección del Tipo de Estudio</h6>
+    <p>Lo primero que debe seleccionar es el tipo principal del estudio usando los botones:</p>
+    <ul>
+      <li><strong>Rayos X (RX)</strong> – Estudios convencionales de rayos X</li>
+      <li><strong>TAC</strong> – Tomografía Axial Computarizada</li>
+      <li><strong>Ecografía (ECO)</strong> – Estudios ecográficos</li>
+    </ul>
+    <div class="alert alert-warning">
+      <i class="fa-solid fa-triangle-exclamation me-2"></i>Al cambiar el tipo, la lista de <strong>TIPO_ESTUDIO</strong> se actualiza automáticamente mostrando solo los estudios del tipo seleccionado.
+    </div>
+
+    <h6 class="fw-bold mt-3">Paso 2 – Campos del Bloque Tecnólogo</h6>
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered">
+        <thead class="table-secondary">
+          <tr><th style="width:30%">Campo</th><th>Descripción</th><th style="width:15%">Obligatorio</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>FECHA_HORA_TOMA</strong></td><td>Fecha y hora en que se realiza el estudio. Se registra <strong>automáticamente</strong> al crear el registro.</td><td class="text-center">Auto</td></tr>
+          <tr><td><strong>FECHA_HORA_ORDEN</strong></td><td>Fecha y hora en que fue ordenado el estudio por el médico. Debe ser igual o anterior a la fecha de toma.</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>IDENTIFICACION</strong></td><td>Número de documento de identidad del paciente (cédula, NIT, pasaporte, etc.).</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>NOMBRE_Y_APELLIDO</strong></td><td>Nombre completo del paciente. Se escribe en MAYÚSCULAS automáticamente.</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>CONTRASTADO_SI_NO</strong></td><td><em>Solo para TAC.</em> Indica si el estudio utiliza medio de contraste. Opciones: SI o NO.</td><td class="text-center">Solo TAC</td></tr>
+          <tr><td><strong>TIPO_ESTUDIO</strong></td><td>Seleccione el procedimiento específico (ej. RX TÓRAX, TAC CEREBRO SIMPLE, ECO ABDOMINAL). La lista se filtra según el tipo principal elegido.</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>CODIGO_TAC</strong></td><td><em>Solo para TAC.</em> Código interno asignado al estudio TAC.</td><td class="text-center">Solo TAC</td></tr>
+          <tr><td><strong>SERVICIO</strong></td><td>Servicio hospitalario de donde proviene el paciente: URGENCIAS, HOSPITALIZACIÓN, UCI, QUIRÓFANO, PREQUIRÚRGICO, CONSULTA EXTERNA.</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>PROFESIONAL</strong></td><td>Médico (general o especialista) que ordenó el estudio. Se selecciona del catálogo de profesionales.</td><td class="text-center">No</td></tr>
+          <tr><td><strong>NUMERO_TOMAS</strong></td><td>Cantidad de imágenes tomadas durante el estudio. Debe ser mayor a 0.</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>KV</strong></td><td>Kilovoltaje utilizado en el equipo radiológico. Rango válido: <strong>40 – 200</strong>.</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>mAs</strong></td><td>Miliamperios-segundo del equipo radiológico. Rango válido: <strong>1.2 – 500</strong>.</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>VOLUMEN_CONTRASTE_ML</strong></td><td><em>Solo para TAC con contraste.</em> Volumen en mililitros del medio de contraste. Rango válido: <strong>30 – 200 ml</strong>. Se habilita solo cuando CONTRASTADO_SI_NO = SI.</td><td class="text-center">Condicional</td></tr>
+          <tr><td><strong>OBSERVACIONES_TEGNOLOGO</strong></td><td>Observaciones adicionales del tecnólogo sobre la toma del estudio (incidencias, condición del paciente, etc.).</td><td class="text-center">No</td></tr>
+          <tr><td><strong>TECNOLOGO</strong></td><td>Tecnólogo que realizó el estudio. Si el usuario tiene perfil de tecnólogo, se selecciona automáticamente.</td><td class="text-center">No</td></tr>
+          <tr><td><strong>REPORTE</strong></td><td>Tipo de reporte asociado al estudio.</td><td class="text-center">No</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h6 class="fw-bold mt-3">ID_REGISTRO – Código automático</h6>
+    <p>El sistema genera automáticamente el código del registro con el formato:</p>
+    <div class="bg-light p-3 rounded font-monospace text-center">
+      <strong>TIPO</strong>-<strong>AAAA</strong>-<strong>MM</strong>-<strong>NNNNNN</strong>
+      &nbsp;|&nbsp;
+      Ejemplo: <span class="text-primary">RX-2026-06-000001</span> · <span class="text-info">TAC-2026-06-000001</span> · <span class="text-success">ECO-2026-06-000001</span>
+    </div>
+    <p class="mt-2 small text-muted">El consecutivo es independiente por tipo de estudio y se reinicia cada mes.</p>
+
+    <div class="alert alert-success mt-3 mb-0">
+      <i class="fa-solid fa-circle-check me-2"></i>Al guardar el registro, el estado queda en <strong>PENDIENTE</strong> hasta que el Radiólogo complete la lectura.
+    </div>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 7 ────────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec7">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">7</span>Completar Lectura Radiológica – Bloque Radiólogo</h5>
+  </div>
+  <div class="card-body">
+    <p>Accesible desde el botón <i class="fa-solid fa-stethoscope"></i> en la lista de registros, o desde el detalle del registro. Solo disponible para <strong>Radiólogo</strong> y <strong>Administrador</strong> en registros con estado <strong>PENDIENTE</strong>.</p>
+
+    <h6 class="fw-bold mt-2">Pantalla de lectura</h6>
+    <p>La pantalla se divide en dos bloques:</p>
+    <ul>
+      <li><strong>Bloque Tecnólogo (arriba, solo lectura):</strong> Muestra todos los datos registrados por el tecnólogo. No se pueden modificar desde esta pantalla.</li>
+      <li><strong>Bloque Radiólogo (abajo, editable):</strong> El radiólogo completa los siguientes campos:</li>
+    </ul>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered">
+        <thead class="table-secondary">
+          <tr><th style="width:30%">Campo</th><th>Descripción</th><th style="width:15%">Obligatorio</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>RECHAZADA</strong></td><td>Indica si el estudio es rechazado por mala calidad u otro motivo. Opciones: <strong>NO</strong> (defecto) o <strong>SI</strong>.</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>CAUSA_RECHAZO</strong></td><td>Si RECHAZADA = SI, seleccione la causa de rechazo del catálogo. Se habilita automáticamente. Si RECHAZADA = NO, se establece NA automáticamente.</td><td class="text-center">Condicional</td></tr>
+          <tr><td><strong>FECHA_HORA_LECTURA_RADIOLOGO</strong></td><td>Fecha y hora en que el radiólogo lee el estudio. Se registra <strong>automáticamente</strong> al guardar.</td><td class="text-center">Auto</td></tr>
+          <tr><td><strong>LECTURA_RADIOLOGO</strong></td><td>Seleccione el nombre del radiólogo que realiza la lectura del catálogo de radiólogos.</td><td class="text-center text-danger">Sí</td></tr>
+          <tr><td><strong>TRANSCRIPTORA</strong></td><td>Persona que transcribió el informe (si aplica).</td><td class="text-center">No</td></tr>
+          <tr><td><strong>OBSERVACION_RADIOLOGO</strong></td><td>Texto completo del informe / lectura radiológica. Aquí se escribe el resultado diagnóstico del estudio.</td><td class="text-center">No</td></tr>
+          <tr><td><strong>ESTADO</strong></td><td>Cambia automáticamente a <span class="badge status-leido">LEÍDO</span> al guardar la lectura.</td><td class="text-center">Auto</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-info mt-3 mb-0">
+      <i class="fa-solid fa-circle-info me-2"></i>Una vez guardada la lectura, el registro queda en estado <strong>LEÍDO</strong> y solo el Administrador puede corregir los campos del Tecnólogo (con motivo de corrección obligatorio).
+    </div>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 8 ────────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec8">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">8</span>Consulta y Filtros</h5>
+  </div>
+  <div class="card-body">
+    <p>En la pantalla de <strong>Registros</strong>, haga clic en el botón <i class="fa-solid fa-filter"></i> <strong>Filtros</strong> para desplegar el panel de búsqueda.</p>
+    <h6 class="fw-bold">Filtros disponibles</h6>
+    <div class="row">
+      <div class="col-md-6">
+        <ul>
+          <li><strong>Fecha toma desde / hasta</strong> – Rango de fechas de la toma</li>
+          <li><strong>Tipo de Estudio</strong> – RX, TAC o ECO</li>
+          <li><strong>TECNOLOGO</strong> – Filtra por tecnólogo específico</li>
+          <li><strong>RADIOLOGO</strong> – Filtra por radiólogo específico</li>
+          <li><strong>Servicio</strong> – Urgencias, hospitalización, etc.</li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <ul>
+          <li><strong>Estudio específico</strong> – Ej. RX TÓRAX</li>
+          <li><strong>Estado</strong> – PENDIENTE, LEÍDO, ANULADO, CORREGIDO</li>
+          <li><strong>Rechazada</strong> – SI o NO</li>
+          <li><strong>Identificación</strong> – Número de documento del paciente</li>
+          <li><strong>Nombre paciente</strong> – Búsqueda por nombre</li>
+        </ul>
+      </div>
+    </div>
+    <p class="mt-2">Haga clic en <strong>Buscar</strong> para aplicar los filtros o en <strong>Limpiar</strong> para restablecer todos los filtros.</p>
+    <div class="alert alert-info mb-0">
+      <i class="fa-solid fa-circle-info me-2"></i>Los filtros activos se mantienen al exportar a Excel o TXT: solo exporta los registros que coincidan con los filtros actuales.
+    </div>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 9 ────────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec9">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">9</span>Exportación de Datos</h5>
+  </div>
+  <div class="card-body">
+    <p>Disponible para todos los roles. Los botones de exportación se encuentran en la parte superior derecha de la pantalla de Registros.</p>
+    <div class="row g-3 mt-1">
+      <div class="col-md-6">
+        <div class="card border-success">
+          <div class="card-body">
+            <h6><i class="fa-solid fa-file-excel me-2 text-success"></i>Exportar a Excel (.xlsx)</h6>
+            <p class="mb-0 small">Genera un archivo Excel con formato, encabezados destacados y ancho de columnas automático. Contiene los <strong>25 campos</strong> definidos en la plantilla oficial.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-secondary">
+          <div class="card-body">
+            <h6><i class="fa-solid fa-file-lines me-2 text-secondary"></i>Exportar a TXT</h6>
+            <p class="mb-0 small">Genera un archivo de texto plano separado por el carácter <code>|</code>. Útil para integración con otros sistemas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h6 class="fw-bold mt-4">Campos del archivo exportado (orden)</h6>
+    <div class="row small">
+      <div class="col-md-6">
+        <ol>
+          <li>ESTUDIO</li><li>ID_REGISTRO</li><li>FECHA_HORA_TOMA</li><li>FECHA_HORA_ORDEN</li>
+          <li>IDENTIFICACION</li><li>NOMBRE_Y_APELLIDO</li><li>CONTRASTADO_SI_NO</li>
+          <li>TIPO_ESTUDIO</li><li>CODIGO_TAC</li><li>SERVICIO</li>
+          <li>PROFESIONAL</li><li>NUMERO_TOMAS</li><li>KV</li>
+        </ol>
+      </div>
+      <div class="col-md-6">
+        <ol start="14">
+          <li>mAs</li><li>VOLUMEN_CONTRASTE_ML</li><li>OBSERVACIONES_TECNOLOGO</li>
+          <li>TECNOLOGO</li><li>REPORTE</li><li>RECHAZADA</li><li>CAUSA_RECHAZO</li>
+          <li>FECHA_HORA_LECTURA_RADIOLOGO</li><li>LECTURA_RADIOLOGO</li>
+          <li>TRANSCRIPTORA</li><li>OBSERVACION_RADIOLOGO</li><li>ESTADO</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 10 ───────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec10">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">10</span>Dashboard Estadístico</h5>
+  </div>
+  <div class="card-body">
+    <p>Disponible para <strong>Administrador</strong> y <strong>Consulta/Gerencia</strong>. Muestra indicadores y gráficas interactivas del volumen de estudios.</p>
+    <h6 class="fw-bold">Tarjetas KPI principales</h6>
+    <ul>
+      <li><strong>Total Estudios</strong> – Total de estudios en el período seleccionado</li>
+      <li><strong>Pendientes de Lectura</strong> – Estudios sin lectura radiológica</li>
+      <li><strong>Leídos / Completados</strong> – Estudios con lectura completa</li>
+      <li><strong>Estudios Rechazados</strong> – Cantidad y porcentaje de rechazos</li>
+    </ul>
+    <h6 class="fw-bold mt-2">Tarjetas por tipo de estudio</h6>
+    <p>Tres tarjetas muestran el conteo de <span class="badge bg-primary">Rayos X</span>, <span class="badge bg-info text-dark">TAC</span> y <span class="badge bg-success">Ecografía</span>. Haga clic en una para filtrar el dashboard por ese tipo.</p>
+    <h6 class="fw-bold mt-2">Gráficas</h6>
+    <ul>
+      <li><strong>Estudios por Servicio</strong> – Distribución por servicio hospitalario</li>
+      <li><strong>Top 10 Tipos de Estudio</strong> – Los estudios más frecuentes</li>
+      <li><strong>Estudios por Tecnólogo</strong> – Producción por tecnólogo</li>
+      <li><strong>Rechazados vs No Rechazados</strong> – Gráfico circular</li>
+      <li><strong>Distribución por Tipo</strong> – Proporción RX / TAC / ECO</li>
+    </ul>
+    <h6 class="fw-bold mt-2">Filtros del dashboard</h6>
+    <p>Use el botón <i class="fa-solid fa-filter"></i> <strong>Filtros</strong> para acotar por fecha, tipo de estudio, tecnólogo, radiólogo o servicio. Las gráficas y la tabla se actualizan automáticamente.</p>
+    <h6 class="fw-bold mt-2">Tabla dinámica inferior</h6>
+    <p>Haga clic en cualquier tarjeta KPI para filtrar la tabla de registros que aparece debajo. Muestra hasta 50 registros del grupo seleccionado.</p>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 11 ───────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec11">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">11</span>Catálogos (Solo Administrador)</h5>
+  </div>
+  <div class="card-body">
+    <p>Los catálogos son las listas de valores que alimentan los campos desplegables del formulario de registro.</p>
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered">
+        <thead class="table-secondary">
+          <tr><th>Catálogo</th><th>Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Estudios Radiológicos</strong></td><td>Tipos de estudio específicos (RX TÓRAX, TAC CEREBRO, etc.). Cada uno tiene asignado el tipo principal (RX, TAC o ECO).</td></tr>
+          <tr><td><strong>Profesionales (Médicos)</strong></td><td>Médicos generales y especialistas que pueden ordenar estudios. Tipo: MEDICO GENERAL o ESPECIALISTA.</td></tr>
+          <tr><td><strong>Servicios</strong></td><td>Servicios hospitalarios (URGENCIAS, HOSPITALIZACIÓN, UCI, QUIRÓFANO, etc.).</td></tr>
+          <tr><td><strong>Causas de Rechazo</strong></td><td>Motivos por los que se puede rechazar un estudio.</td></tr>
+          <tr><td><strong>TECNOLOGOs</strong></td><td>Tecnólogos con acceso al sistema. Crear aquí también crea el usuario de login.</td></tr>
+          <tr><td><strong>RADIOLOGOs</strong></td><td>Radiólogos con acceso al sistema. Crear aquí también crea el usuario de login.</td></tr>
+          <tr><td><strong>Transcriptoras</strong></td><td>Personal que transcribe informes radiológicos.</td></tr>
+          <tr><td><strong>Reportes</strong></td><td>Tipos de reporte disponibles.</td></tr>
+          <tr><td><strong>Especialidades</strong></td><td>Especialidades médicas para clasificar a los radiólogos.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h6 class="fw-bold mt-3">Operaciones en catálogos</h6>
+    <ul>
+      <li><strong>Agregar</strong> – Use el formulario en la parte superior de cada catálogo.</li>
+      <li><strong>Editar</strong> – Haga clic en el ícono <i class="fa-solid fa-pen text-warning"></i> para abrir el modal de edición.</li>
+      <li><strong>Activar / Desactivar</strong> – Use el ícono <i class="fa-solid fa-toggle-on text-success"></i> / <i class="fa-solid fa-toggle-off text-secondary"></i>. Los registros inactivos no aparecen en los formularios.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── SECCIÓN 12 ───────────────────────────────────────────────── -->
+<div class="card shadow-sm mb-4" id="sec12">
+  <div class="card-header" style="background:#1a3c5e;color:#fff">
+    <h5 class="mb-0"><span class="badge bg-light text-dark me-2">12</span>Gestión de Usuarios y Auditoría (Solo Administrador)</h5>
+  </div>
+  <div class="card-body">
+    <h6 class="fw-bold">Gestión de Usuarios</h6>
+    <p>Accesible desde <strong>Usuarios</strong> en el menú lateral. Permite:</p>
+    <ul>
+      <li>Crear nuevos usuarios con nombre, documento, correo, rol y contraseña</li>
+      <li>Editar datos y cambiar contraseñas</li>
+      <li>Activar o desactivar cuentas</li>
+      <li>Importar usuarios masivamente desde Excel (plantilla descargable)</li>
+    </ul>
+
+    <h6 class="fw-bold mt-3">Anular Registros</h6>
+    <p>Desde el detalle de un registro, el Administrador puede <strong>anular</strong> un registro con el botón rojo <i class="fa-solid fa-ban"></i>. Se requiere ingresar el motivo de anulación. Los registros anulados no se eliminan, quedan marcados como <span class="badge status-anulado">ANULADO</span> y no aparecen en las estadísticas del Dashboard.</p>
+
+    <h6 class="fw-bold mt-3">Corrección de Registros Leídos</h6>
+    <p>Si un registro ya fue leído por el radiólogo, el Administrador puede corregir los campos del Tecnólogo ingresando un <strong>motivo de corrección obligatorio</strong>. El registro queda en estado <span class="badge status-corregido">CORREGIDO</span>.</p>
+
+    <h6 class="fw-bold mt-3">Auditoría</h6>
+    <p>El sistema registra automáticamente cada acción realizada sobre los registros:</p>
+    <ul>
+      <li><strong>CREAR</strong> – Nuevo registro creado</li>
+      <li><strong>MODIFICAR</strong> – Campos del Tecnólogo editados</li>
+      <li><strong>LECTURA</strong> – Lectura radiológica completada</li>
+      <li><strong>ANULAR</strong> – Registro anulado</li>
+      <li><strong>CORREGIR</strong> – Corrección post-lectura</li>
+    </ul>
+    <p>El historial de auditoría de cada registro es visible en su pantalla de detalle (solo Administrador).</p>
+    <p>La pantalla completa de <strong>Auditoría</strong> permite filtrar por fecha, usuario y tipo de acción.</p>
+
+    <div class="alert alert-danger mb-0">
+      <i class="fa-solid fa-triangle-exclamation me-2"></i><strong>Importante:</strong> Los registros nunca se eliminan permanentemente. Siempre quedan trazas de todos los cambios para garantizar la integridad de la información.
+    </div>
+  </div>
+</div>
+
+<!-- Pie del manual -->
+<div class="text-center text-muted small py-3 border-top mt-2">
+  <p class="mb-1"><strong>CMVA – Imágenes Diagnósticas</strong> · Manual de Usuario v2.0 · 2026</p>
+  <p class="mb-0">Centro Médico Valle de Atriz · Nariño, Colombia</p>
+</div>
+
+<div class="text-center mt-3 mb-4 no-print">
+  <button class="btn cmva-btn-primary btn-lg" onclick="window.print()">
+    <i class="fa-solid fa-file-pdf me-2"></i>Descargar como PDF
+  </button>
+  <p class="text-muted small mt-2">Se abrirá el diálogo de impresión. Seleccione <strong>"Guardar como PDF"</strong> como destino.</p>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+@media print {
+  .cmva-navbar, .cmva-sidebar, .no-print,
+  .btn, .navbar, nav.cmva-sidebar { display: none !important; }
+  .col-md-10, .cmva-main { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; }
+  .card { break-inside: avoid; border: 1px solid #ccc !important; margin-bottom: 1rem !important; }
+  .card-header { background: #1a3c5e !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-portada { display: block !important; break-after: page; }
+  a { text-decoration: none !important; color: #000 !important; }
+  body { font-size: 11pt; }
+  h5, h6 { font-size: 11pt; }
+  .table { font-size: 9pt; }
+  .alert { border: 1px solid #ccc !important; }
+}
+</style>
+{% endblock %}

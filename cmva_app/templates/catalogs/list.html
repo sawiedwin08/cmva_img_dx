@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}{{ cfg.title }} – CMVA{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0"><i class="fa-solid fa-book me-2 text-primary"></i>{{ cfg.title }}</h4>
+  <a href="/catalogos/" class="btn btn-outline-secondary btn-sm">
+    <i class="fa-solid fa-arrow-left me-1"></i>Catálogos
+  </a>
+</div>
+
+<!-- Formulario Agregar -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header cmva-card-header">
+    <h6 class="mb-0"><i class="fa-solid fa-plus me-2"></i>Agregar nuevo registro</h6>
+  </div>
+  <div class="card-body">
+    <form method="POST" action="/catalogos/{{ catalog }}/nuevo" class="row g-2 align-items-end">
+      {% if 'codigo' in cfg.fields %}
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold">Código</label>
+        <input type="text" name="codigo" class="form-control form-control-sm" placeholder="Cód." maxlength="20">
+      </div>
+      {% endif %}
+      {% if 'nombre' in cfg.fields %}
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold">Nombre <span class="text-danger">*</span></label>
+        <input type="text" name="nombre" class="form-control form-control-sm" required placeholder="Nombre" style="text-transform:uppercase">
+      </div>
+      {% endif %}
+      {% if 'descripcion' in cfg.fields %}
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold">Descripción {% if catalog == 'causas-rechazo' %}<span class="text-danger">*</span>{% endif %}</label>
+        <input type="text" name="descripcion" class="form-control form-control-sm" placeholder="Descripción"
+               {% if catalog == 'causas-rechazo' %}required{% endif %}>
+      </div>
+      {% endif %}
+      {% if 'especialidad_id' in cfg.get('extra_fields', []) %}
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">Especialidad</label>
+        <select name="especialidad_id" class="form-select form-select-sm">
+          <option value="">-- Ninguna --</option>
+          {% for e in especialidades %}
+          <option value="{{ e.id }}">{{ e.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      {% if cfg.get('tipo_options') %}
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">Tipo <span class="text-danger">*</span></label>
+        <select name="tipo" class="form-select form-select-sm" required>
+          {% for opt in cfg.tipo_options %}
+          <option value="{{ opt }}">{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div class="col-md-2">
+        <button type="submit" class="btn cmva-btn-primary btn-sm w-100">
+          <i class="fa-solid fa-plus me-1"></i>Agregar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabla de items -->
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          {% if 'codigo' in cfg.fields %}<th>Código</th>{% endif %}
+          {% if 'nombre' in cfg.fields %}<th>Nombre</th>{% endif %}
+          {% if 'descripcion' in cfg.fields %}<th>Descripción</th>{% endif %}
+          {% if 'especialidad_id' in cfg.get('extra_fields', []) %}<th>Especialidad</th>{% endif %}
+          {% if cfg.get('tipo_options') %}<th>Tipo</th>{% endif %}
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr class="{% if not item.estado %}table-secondary text-muted{% endif %}">
+          <td>{{ item.id }}</td>
+          {% if 'codigo' in cfg.fields %}<td>{{ item.codigo or '—' }}</td>{% endif %}
+          {% if 'nombre' in cfg.fields %}<td>{{ item.nombre }}</td>{% endif %}
+          {% if 'descripcion' in cfg.fields %}<td>{{ item.descripcion or '—' }}</td>{% endif %}
+          {% if 'especialidad_id' in cfg.get('extra_fields', []) %}
+          <td>{{ item.especialidad.nombre if item.especialidad else '—' }}</td>
+          {% endif %}
+          {% if cfg.get('tipo_options') %}
+          <td><span class="badge bg-secondary">{{ item.tipo or '—' }}</span></td>
+          {% endif %}
+          <td>
+            {% if item.estado %}<span class="badge bg-success">Activo</span>
+            {% else %}<span class="badge bg-secondary">Inactivo</span>{% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-outline-warning btn-xs" data-bs-toggle="modal"
+                      data-bs-target="#modalEdit{{ item.id }}">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <form method="POST" action="/catalogos/{{ catalog }}/{{ item.id }}/toggle" class="d-inline">
+                <button type="submit" class="btn btn-xs {% if item.estado %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                        title="{% if item.estado %}Desactivar{% else %}Activar{% endif %}">
+                  <i class="fa-solid fa-{% if item.estado %}toggle-on{% else %}toggle-off{% endif %}"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <!-- Modal Edit -->
+        <div class="modal fade" id="modalEdit{{ item.id }}" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header cmva-card-header text-white">
+                <h6 class="modal-title">Editar registro #{{ item.id }}</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <form method="POST" action="/catalogos/{{ catalog }}/{{ item.id }}/editar">
+                <div class="modal-body">
+                  {% if 'codigo' in cfg.fields %}
+                  <div class="mb-3"><label class="form-label fw-semibold">Código</label>
+                    <input type="text" name="codigo" class="form-control" value="{{ item.codigo or '' }}" maxlength="20"></div>
+                  {% endif %}
+                  {% if 'nombre' in cfg.fields %}
+                  <div class="mb-3"><label class="form-label fw-semibold">Nombre</label>
+                    <input type="text" name="nombre" class="form-control" value="{{ item.nombre }}" style="text-transform:uppercase"></div>
+                  {% endif %}
+                  {% if 'descripcion' in cfg.fields %}
+                  <div class="mb-3"><label class="form-label fw-semibold">Descripción</label>
+                    <input type="text" name="descripcion" class="form-control" value="{{ item.descripcion or '' }}"></div>
+                  {% endif %}
+                  {% if 'especialidad_id' in cfg.get('extra_fields', []) %}
+                  <div class="mb-3"><label class="form-label fw-semibold">Especialidad</label>
+                    <select name="especialidad_id" class="form-select">
+                      <option value="">-- Ninguna --</option>
+                      {% for e in especialidades %}
+                      <option value="{{ e.id }}" {% if item.especialidad_id == e.id %}selected{% endif %}>{{ e.nombre }}</option>
+                      {% endfor %}
+                    </select></div>
+                  {% endif %}
+                  {% if cfg.get('tipo_options') %}
+                  <div class="mb-3"><label class="form-label fw-semibold">Tipo</label>
+                    <select name="tipo" class="form-select">
+                      {% for opt in cfg.tipo_options %}
+                      <option value="{{ opt }}" {% if item.tipo and item.tipo.upper() == opt.upper() %}selected{% endif %}>{{ opt }}</option>
+                      {% endfor %}
+                    </select></div>
+                  {% endif %}
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn cmva-btn-primary">Guardar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <tr><td colspan="10" class="text-center text-muted py-3">No hay registros. Agregue el primero.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

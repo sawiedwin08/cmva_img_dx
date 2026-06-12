@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+{% block title %}{% if modo == 'nuevo' %}Nuevo Estudio{% else %}Editar Registro{% endif %} – CMVA{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">
+    <i class="fa-solid fa-{% if modo == 'nuevo' %}plus-circle{% else %}pen-to-square{% endif %} me-2 text-primary"></i>
+    {% if modo == 'nuevo' %}Nuevo Registro de Estudio{% else %}Editar Registro – {{ registro.codigo_registro }}{% endif %}
+  </h4>
+  <a href="{% if registro %}/registros/{{ registro.id }}{% else %}/registros{% endif %}" class="btn btn-outline-secondary btn-sm">
+    <i class="fa-solid fa-arrow-left me-1"></i>Volver
+  </a>
+</div>
+
+<form method="POST" action="{% if modo == 'nuevo' %}/registros/nuevo{% else %}/registros/{{ registro.id }}/editar{% endif %}"
+      id="formRegistro" novalidate>
+
+  <!-- ── 1. ESTUDIO – Tipo principal ───────────────────────────────── -->
+  <div class="card mb-3 border-0 shadow-sm" style="border-left: 4px solid var(--cmva-primary) !important;">
+    <div class="card-body py-2">
+      <div class="row g-3 align-items-center">
+        <div class="col-auto">
+          <label class="form-label fw-bold mb-0">ESTUDIO <span class="text-danger">*</span></label>
+        </div>
+        <div class="col-auto">
+          <div class="btn-group" role="group">
+            {% set tipo_actual = registro.tipo_estudio_principal if registro and registro.tipo_estudio_principal else 'RX' %}
+            <input type="radio" class="btn-check" name="tipo_estudio_principal" id="tipoRX" value="RX" autocomplete="off"
+                   {% if tipo_actual == 'RX' %}checked{% endif %}>
+            <label class="btn btn-outline-primary" for="tipoRX">
+              <i class="fa-solid fa-x-ray me-1"></i>Rayos X (RX)
+            </label>
+            <input type="radio" class="btn-check" name="tipo_estudio_principal" id="tipoTAC" value="TAC" autocomplete="off"
+                   {% if tipo_actual == 'TAC' %}checked{% endif %}>
+            <label class="btn btn-outline-primary" for="tipoTAC">
+              <i class="fa-solid fa-brain me-1"></i>TAC
+            </label>
+            <input type="radio" class="btn-check" name="tipo_estudio_principal" id="tipoECO" value="ECO" autocomplete="off"
+                   {% if tipo_actual == 'ECO' %}checked{% endif %}>
+            <label class="btn btn-outline-primary" for="tipoECO">
+              <i class="fa-solid fa-wave-square me-1"></i>Ecografía (ECO)
+            </label>
+          </div>
+        </div>
+        {% if registro %}
+        <div class="col-auto">
+          <span class="badge bg-secondary fs-6">{{ registro.codigo_registro }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bloque TECNÓLOGO ───────────────────────────────────────────── -->
+  <div class="card mb-4 border-primary shadow-sm">
+    <div class="card-header cmva-block-tecnologo">
+      <h6 class="mb-0 text-white"><i class="fa-solid fa-user-nurse me-2"></i>Bloque Tecnólogo</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+
+        <!-- 3. FECHA_HORA_TOMA (auto) -->
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small">FECHA_HORA_TOMA</label>
+          <input type="text" class="form-control form-control-sm bg-light"
+                 value="{{ fecha_toma.strftime('%d/%m/%Y %H:%M') if fecha_toma else '' }}" readonly>
+          <div class="form-text">Automática del sistema</div>
+        </div>
+
+        <!-- 4. FECHA_HORA_ORDEN -->
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small">FECHA_HORA_ORDEN <span class="text-danger">*</span></label>
+          <input type="datetime-local" name="fecha_hora_orden" id="fecha_hora_orden"
+                 class="form-control form-control-sm" required
+                 value="{% if registro and registro.fecha_hora_orden %}{{ registro.fecha_hora_orden.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+          <div class="invalid-feedback">Obligatorio.</div>
+        </div>
+
+        <!-- 5. IDENTIFICACION -->
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small">IDENTIFICACION <span class="text-danger">*</span></label>
+          <input type="text" name="identificacion" class="form-control form-control-sm" required
+                 value="{% if registro %}{{ registro.identificacion }}{% endif %}"
+                 placeholder="Nº de documento">
+          <div class="invalid-feedback">Obligatorio.</div>
+        </div>
+
+        <!-- 6. NOMBRE_Y_APELLIDO -->
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small">NOMBRE_Y_APELLIDO <span class="text-danger">*</span></label>
+          <input type="text" name="nombre_paciente" class="form-control form-control-sm" required
+                 value="{% if registro %}{{ registro.nombre_paciente }}{% endif %}"
+                 placeholder="APELLIDO NOMBRE" style="text-transform:uppercase">
+          <div class="invalid-feedback">Obligatorio.</div>
+        </div>
+
+        <!-- 7. CONTRASTADO_SI_NO (solo TAC) -->
+        <div class="col-md-2" id="contrastadoContainer" style="display:none">
+          <label class="form-label fw-semibold small">CONTRASTADO_SI_NO <span class="text-danger">*</span></label>
+          <select name="contrastado_si_no" id="contrastado_si_no" class="form-select form-select-sm">
+            <option value="NO" {% if not registro or (registro.contrastado_si_no or 'NO') == 'NO' %}selected{% endif %}>NO</option>
+            <option value="SI" {% if registro and registro.contrastado_si_no == 'SI' %}selected{% endif %}>SI</option>
+          </select>
+        </div>
+
+        <!-- 8. TIPO_ESTUDIO (específico, filtrado por tipo principal) -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold small">TIPO_ESTUDIO <span class="text-danger">*</span></label>
+          <select name="estudio_id" id="estudio_id" class="form-select form-select-sm" required>
+            <option value="">-- Seleccione --</option>
+            {% for e in todos_estudios %}
+            <option value="{{ e.id }}"
+                    data-tipo="{{ e.tipo or 'RX' }}"
+                    {% if registro and registro.estudio_id == e.id %}selected{% endif %}>
+              {{ e.nombre }}
+            </option>
+            {% endfor %}
+          </select>
+          <div class="invalid-feedback">Obligatorio.</div>
+        </div>
+
+        <!-- 9. CODIGO_TAC (solo visible cuando tipo = TAC) -->
+        <div class="col-md-2" id="codigoTacContainer" style="display:none">
+          <label class="form-label fw-semibold small">CODIGO_TAC</label>
+          <input type="text" name="codigo_tac" id="codigo_tac" class="form-control form-control-sm"
+                 value="{% if registro %}{{ registro.codigo_tac or '' }}{% endif %}"
+                 placeholder="Código TAC">
+        </div>
+
+        <!-- SERVICIO -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small">SERVICIO <span class="text-danger">*</span></label>
+          <select name="servicio_id" class="form-select form-select-sm" required>
+            <option value="">-- Seleccione --</option>
+            {% for s in servicios %}
+            <option value="{{ s.id }}" {% if registro and registro.servicio_id == s.id %}selected{% endif %}>{{ s.nombre }}</option>
+            {% endfor %}
+          </select>
+          <div class="invalid-feedback">Obligatorio.</div>
+        </div>
+
+        <!-- 11. PROFESIONAL -->
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small">PROFESIONAL</label>
+          <select name="profesional_id" class="form-select form-select-sm">
+            <option value="">-- Seleccione --</option>
+            {% for p in profesionales %}
+            <option value="{{ p.id }}"
+              {% if registro and registro.profesional_id == p.id %}selected{% endif %}>
+              {{ p.nombre }}{% if p.tipo %} ({{ p.tipo }}){% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- 12. NUMERO_TOMAS -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small">NUMERO_TOMAS <span class="text-danger">*</span></label>
+          <input type="number" name="numero_tomas" class="form-control form-control-sm" required min="1"
+                 value="{% if registro %}{{ registro.numero_tomas }}{% else %}1{% endif %}">
+          <div class="invalid-feedback">Debe ser mayor a 0.</div>
+        </div>
+
+        <!-- 13. KV -->
+        <div class="col-md-1">
+          <label class="form-label fw-semibold small">KV <span class="text-danger">*</span></label>
+          <input type="number" name="kv" id="kv" class="form-control form-control-sm" required min="40" max="200" step="0.1"
+                 value="{% if registro %}{{ registro.kv }}{% endif %}">
+          <div class="invalid-feedback">KV debe estar entre 40 y 200.</div>
+          <div class="form-text text-muted">Rango: 40 – 200</div>
+        </div>
+
+        <!-- 14. mAs -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small">mAs <span class="text-danger">*</span></label>
+          <input type="number" name="mas" id="mas" class="form-control form-control-sm" required min="1.2" max="500" step="0.01"
+                 value="{% if registro %}{{ registro.mas }}{% endif %}">
+          <div class="invalid-feedback">mAs debe estar entre 1.2 y 500.</div>
+          <div class="form-text text-muted">Rango: 1.2 – 500</div>
+        </div>
+
+        <!-- 15. VOLUMEN_CONTRASTE_ML (solo TAC y solo si CONTRASTADO=SI) -->
+        <div class="col-md-2" id="volumenContainer" style="display:none">
+          <label class="form-label fw-semibold small">VOLUMEN_CONTRASTE_ML</label>
+          <input type="number" name="volumen_contraste_ml" id="volumen_contraste_ml"
+                 class="form-control form-control-sm" step="0.1" min="30" max="200"
+                 value="{% if registro %}{{ registro.volumen_contraste_ml or '' }}{% endif %}"
+                 placeholder="ml">
+          <div class="invalid-feedback">Volumen debe estar entre 30 y 200 ml.</div>
+          <div class="form-text text-muted">Rango: 30 – 200 ml</div>
+        </div>
+
+        <!-- 16. OBSERVACIONES_TEGNOLOGO -->
+        <div class="col-md-12">
+          <label class="form-label fw-semibold small">OBSERVACIONES_TEGNOLOGO</label>
+          <textarea name="observaciones_tecnologo" class="form-control form-control-sm" rows="2"
+                    placeholder="Observaciones del tecnólogo...">{% if registro and registro.observaciones_tecnologo %}{{ registro.observaciones_tecnologo }}{% endif %}</textarea>
+        </div>
+
+        <!-- 17. TECNOLOGO -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold small">TECNOLOGO</label>
+          <select name="tecnologo_id" class="form-select form-select-sm">
+            <option value="">-- Seleccione --</option>
+            {% for t in tecnologos %}
+            <option value="{{ t.id }}"
+              {% if registro and registro.tecnologo_id == t.id %}selected
+              {% elif not registro and tecnologo_default == t.id %}selected{% endif %}>
+              {{ t.nombre }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- 18. REPORTE -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold small">REPORTE</label>
+          <select name="reporte_id" class="form-select form-select-sm">
+            <option value="">-- Seleccione --</option>
+            {% for r in reportes %}
+            <option value="{{ r.id }}" {% if registro and registro.reporte_id == r.id %}selected{% endif %}>{{ r.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bloque RADIÓLOGO (solo lectura para el tecnólogo) ─────────── -->
+  {% if registro and registro.estado not in ['PENDIENTE'] %}
+  <div class="card mb-4 border-success shadow-sm">
+    <div class="card-header cmva-block-radiologo">
+      <h6 class="mb-0 text-white"><i class="fa-solid fa-stethoscope me-2"></i>Bloque Radiólogo (Solo lectura)</h6>
+    </div>
+    <div class="card-body bg-light">
+      <div class="row g-2 small">
+        <div class="col-md-2">
+          <label class="label-sm">RECHAZADA</label>
+          <p class="val-sm">{% if registro.rechazada %}<span class="badge bg-danger">SI</span>{% else %}<span class="badge bg-secondary">NO</span>{% endif %}</p>
+        </div>
+        <div class="col-md-3">
+          <label class="label-sm">CAUSA_RECHAZO</label>
+          <p class="val-sm">{{ registro.causa_rechazo.descripcion if registro.causa_rechazo and registro.causa_rechazo.descripcion != 'NA' else '—' }}</p>
+        </div>
+        <div class="col-md-3">
+          <label class="label-sm">FECHA_HORA_LECTURA_RADIOLOGO</label>
+          <p class="val-sm">{{ registro.fecha_hora_lectura_radiologo | dt if registro.fecha_hora_lectura_radiologo else '—' }}</p>
+        </div>
+        <div class="col-md-4">
+          <label class="label-sm">LECTURA_RADIOLOGO</label>
+          <p class="val-sm fw-semibold">{{ registro.radiologo.nombre if registro.radiologo else '—' }}</p>
+        </div>
+        <div class="col-md-3">
+          <label class="label-sm">TRANSCRIPTORA</label>
+          <p class="val-sm">{{ registro.transcriptora.nombre if registro.transcriptora else '—' }}</p>
+        </div>
+        <div class="col-md-12">
+          <label class="label-sm">OBSERVACION_RADIOLOGO</label>
+          <p class="val-sm" style="white-space:pre-wrap">{{ registro.lectura_radiologo or registro.observaciones_radiologo or registro.observaciones or '—' }}</p>
+        </div>
+        <div class="col-md-2">
+          <label class="label-sm">ESTADO</label>
+          <p class="val-sm">
+            {% if registro.estado == 'LEIDO' %}<span class="badge status-leido">LEIDO</span>
+            {% elif registro.estado == 'CORREGIDO' %}<span class="badge status-corregido">CORREGIDO</span>
+            {% else %}<span class="badge bg-secondary">{{ registro.estado }}</span>{% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if user.rol.nombre == 'ADMINISTRADOR' and registro and registro.estado in ['LEIDO', 'CORREGIDO'] %}
+  <div class="mb-3">
+    <label class="form-label fw-semibold">Motivo de corrección <span class="text-danger">*</span></label>
+    <textarea name="motivo_correccion" class="form-control" rows="2"
+              placeholder="Ingrese el motivo de esta corrección (obligatorio cuando el registro ya tiene lectura)"></textarea>
+  </div>
+  {% endif %}
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn cmva-btn-primary">
+      <i class="fa-solid fa-floppy-disk me-2"></i>{% if modo == 'nuevo' %}Guardar Registro{% else %}Actualizar Registro{% endif %}
+    </button>
+    <a href="/registros" class="btn btn-outline-secondary">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const TODOS_ESTUDIOS = [
+  {% for e in todos_estudios %}
+  { id: {{ e.id }}, nombre: {{ e.nombre | tojson }}, tipo: {{ (e.tipo or 'RX') | tojson }} },
+  {% endfor %}
+];
+
+const estudioSel        = document.getElementById('estudio_id');
+const tipoRadios        = document.querySelectorAll('input[name="tipo_estudio_principal"]');
+const contrastadoSel    = document.getElementById('contrastado_si_no');
+const volumenInput      = document.getElementById('volumen_contraste_ml');
+const codigoTacBox      = document.getElementById('codigoTacContainer');
+const contrastadoBox    = document.getElementById('contrastadoContainer');
+const volumenBox        = document.getElementById('volumenContainer');
+
+function getTipo() {
+  for (const r of tipoRadios) { if (r.checked) return r.value; }
+  return 'RX';
+}
+
+function filtrarEstudios(tipo) {
+  const cur = estudioSel.value;
+  estudioSel.innerHTML = '<option value="">-- Seleccione --</option>';
+  TODOS_ESTUDIOS.filter(e => e.tipo === tipo).forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.id;
+    opt.textContent = e.nombre;
+    if (String(e.id) === String(cur)) opt.selected = true;
+    estudioSel.appendChild(opt);
+  });
+}
+
+function updateCamposTAC(tipo) {
+  const esTAC = tipo === 'TAC';
+
+  // CODIGO_TAC: solo visible para TAC
+  codigoTacBox.style.display = esTAC ? '' : 'none';
+  const codigoTacInput = document.getElementById('codigo_tac');
+  codigoTacInput.disabled = !esTAC;
+  if (!esTAC) codigoTacInput.value = '';
+
+  // CONTRASTADO_SI_NO: solo visible para TAC
+  contrastadoBox.style.display = esTAC ? '' : 'none';
+  contrastadoSel.disabled = !esTAC;
+  if (!esTAC) contrastadoSel.value = 'NO';
+
+  // VOLUMEN_CONTRASTE_ML: solo visible para TAC y solo si CONTRASTADO=SI
+  updateVolumen(esTAC);
+}
+
+function updateVolumen(esTAC) {
+  const siContrastado = esTAC && contrastadoSel.value === 'SI';
+  volumenBox.style.display = siContrastado ? '' : 'none';
+  volumenInput.disabled = !siContrastado;
+  if (!siContrastado) volumenInput.value = '';
+}
+
+tipoRadios.forEach(r => {
+  r.addEventListener('change', function() {
+    filtrarEstudios(this.value);
+    updateCamposTAC(this.value);
+  });
+});
+
+contrastadoSel.addEventListener('change', () => updateVolumen(getTipo() === 'TAC'));
+
+document.querySelector('[name="nombre_paciente"]').addEventListener('input', function() {
+  const pos = this.selectionStart;
+  this.value = this.value.toUpperCase();
+  this.setSelectionRange(pos, pos);
+});
+
+// ── Validación en tiempo real para KV, mAs y Volumen ─────────────────────
+const kvInput  = document.getElementById('kv');
+const masInput = document.getElementById('mas');
+
+function validarKV() {
+  const v = parseFloat(kvInput.value);
+  if (kvInput.value === '' || isNaN(v)) {
+    kvInput.setCustomValidity('Ingrese un valor de KV.');
+  } else if (v < 40 || v > 200) {
+    kvInput.setCustomValidity('KV debe estar entre 40 y 200.');
+  } else {
+    kvInput.setCustomValidity('');
+  }
+}
+
+function validarMas() {
+  const v = parseFloat(masInput.value);
+  if (masInput.value === '' || isNaN(v)) {
+    masInput.setCustomValidity('Ingrese un valor de mAs.');
+  } else if (v < 1.2 || v > 500) {
+    masInput.setCustomValidity('mAs debe estar entre 1.2 y 500.');
+  } else {
+    masInput.setCustomValidity('');
+  }
+}
+
+function validarVolumen() {
+  if (volumenInput.disabled || volumenInput.value === '') {
+    volumenInput.setCustomValidity('');
+    return;
+  }
+  const v = parseFloat(volumenInput.value);
+  if (isNaN(v) || v < 30 || v > 200) {
+    volumenInput.setCustomValidity('Volumen debe estar entre 30 y 200 ml.');
+  } else {
+    volumenInput.setCustomValidity('');
+  }
+}
+
+kvInput.addEventListener('input', function() { validarKV(); });
+kvInput.addEventListener('blur',  function() { validarKV(); });
+masInput.addEventListener('input', function() { validarMas(); });
+masInput.addEventListener('blur',  function() { validarMas(); });
+volumenInput.addEventListener('input', function() { validarVolumen(); });
+
+// ── Envío del formulario: bloquear si hay errores ─────────────────────────
+document.getElementById('formRegistro').addEventListener('submit', function(e) {
+  validarKV();
+  validarMas();
+  validarVolumen();
+  this.classList.add('was-validated');
+  if (!this.checkValidity()) {
+    e.preventDefault();
+    e.stopPropagation();
+    // Hacer scroll al primer campo con error
+    const firstInvalid = this.querySelector(':invalid');
+    if (firstInvalid) firstInvalid.focus();
+  }
+});
+
+(function init() {
+  const tipo = getTipo();
+  filtrarEstudios(tipo);
+  updateCamposTAC(tipo);
+  // Inicializar validaciones para edición (valores ya cargados)
+  if (kvInput.value)  validarKV();
+  if (masInput.value) validarMas();
+})();
+</script>
+{% endblock %}

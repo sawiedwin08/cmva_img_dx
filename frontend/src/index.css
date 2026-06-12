@@ -1,0 +1,34 @@
+/* ── CMVA Custom Styles ─────────────────────────────────── */
+body { background-color: #f4f6f9; font-size: 0.92rem; }
+
+.cmva-navbar {
+  background: linear-gradient(135deg, #1a3c5e, #2a6496) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  min-height: 54px;
+}
+
+.cmva-sidebar {
+  background: #1e2a3a;
+  min-height: calc(100vh - 54px);
+}
+
+.cmva-sidebar .nav-link {
+  color: #adb5bd;
+  border-radius: 6px;
+  padding: .45rem .8rem;
+  transition: all .2s;
+}
+.cmva-sidebar .nav-link:hover { background: #2c3e50; color: #fff; }
+.cmva-sidebar .nav-link.active { background: #0d6efd; color: #fff; font-weight: 600; }
+
+.cmva-main { background: #f4f6f9; }
+
+.catalog-card { transition: transform .15s, box-shadow .15s; }
+.catalog-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,.12) !important; }
+
+code { background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: .85em; }
+
+@media print {
+  .cmva-navbar, .cmva-sidebar, button, .btn, nav { display: none !important; }
+  .cmva-main { margin: 0 !important; padding: 0 !important; }
+}

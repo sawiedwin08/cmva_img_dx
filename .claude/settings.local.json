@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import openpyxl; wb = openpyxl.load_workbook\\('Informe de rayos X CMVA.xlsx'\\); print\\('Hojas:', wb.sheetnames\\); ws = wb.active; print\\('Dimensiones:', ws.dimensions\\); headers = [cell.value for cell in ws[1]]; print\\('Columnas:', headers[:20]\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\usuario\\\\Downloads\\\\CMVA-SOFTWARE\\\\CMVA IMAGENES DIAGNOSTICAS\\\\cmva_app\\\\routers\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\usuario\\\\Downloads\\\\CMVA-SOFTWARE\\\\CMVA IMAGENES DIAGNOSTICAS\\\\cmva_app\\\\templates\\\\registros\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\usuario\\\\Downloads\\\\CMVA-SOFTWARE\\\\CMVA IMAGENES DIAGNOSTICAS\\\\cmva_app\\\\templates\\\\catalogs\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\usuario\\\\Downloads\\\\CMVA-SOFTWARE\\\\CMVA IMAGENES DIAGNOSTICAS\\\\cmva_app\\\\templates\\\\admin\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\usuario\\\\Downloads\\\\CMVA-SOFTWARE\\\\CMVA IMAGENES DIAGNOSTICAS\\\\cmva_app\\\\static\\\\css\")",
+      "PowerShell(Stop-Process -Name \"python\" -ErrorAction SilentlyContinue)",
+      "PowerShell(pip list 2>&1)",
+      "PowerShell(findstr -i \"dangerous\")",
+      "PowerShell(python -c \"import itsdangerous; print\\('OK'\\)\" 2>&1)",
+      "PowerShell(Get-Process -Name python -ErrorAction SilentlyContinue)",
+      "PowerShell(netstat -an 2>&1)",
+      "PowerShell(Start-Process \"http://localhost:8000/login\")",
+      "Bash(git -C \"c:\\\\Users\\\\usuario\\\\Downloads\\\\CMVA-SOFTWARE\\\\CMVA IMAGENES DIAGNOSTICAS\" log --oneline -10)",
+      "Bash(python -m uvicorn main:app --host 0.0.0.0 --port 8000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/login)",
+      "Bash(python -c \"from routers import registros_router; print\\('OK'\\)\")"
+    ]
+  }
+}

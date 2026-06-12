@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Auditoría – CMVA{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0"><i class="fa-solid fa-shield-halved me-2 text-primary"></i>Módulo de Auditoría</h4>
+</div>
+
+<!-- Filtros -->
+<div class="card card-body mb-3 bg-light border-0">
+  <form method="GET" action="/auditoria/" class="row g-2">
+    <div class="col-md-2"><label class="form-label small fw-semibold">Fecha desde</label>
+      <input type="date" name="fecha_desde" class="form-control form-control-sm" value="{{ params.fecha_desde }}"></div>
+    <div class="col-md-2"><label class="form-label small fw-semibold">Fecha hasta</label>
+      <input type="date" name="fecha_hasta" class="form-control form-control-sm" value="{{ params.fecha_hasta }}"></div>
+    <div class="col-md-3"><label class="form-label small fw-semibold">Usuario</label>
+      <select name="usuario_id" class="form-select form-select-sm">
+        <option value="">Todos</option>
+        {% for u in usuarios %}<option value="{{ u.id }}" {% if params.usuario_id == u.id|string %}selected{% endif %}>{{ u.nombre_completo }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-2"><label class="form-label small fw-semibold">Acción</label>
+      <select name="accion" class="form-select form-select-sm">
+        <option value="">Todas</option>
+        {% for a in acciones %}<option value="{{ a }}" {% if params.accion == a %}selected{% endif %}>{{ a }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-2"><label class="form-label small fw-semibold">ID Registro</label>
+      <input type="number" name="registro_id" class="form-control form-control-sm" value="{{ params.registro_id }}" placeholder="ID num."></div>
+    <div class="col-md-1 d-flex align-items-end gap-1">
+      <button type="submit" class="btn cmva-btn-primary btn-sm flex-fill">Buscar</button>
+    </div>
+  </form>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header d-flex justify-content-between py-2">
+    <span class="small text-muted">{{ total }} entrada(s)</span>
+    <span class="small text-muted">Página {{ page }} / {{ total_pages }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0 small">
+      <thead>
+        <tr><th>Fecha/Hora</th><th>Usuario</th><th>Acción</th><th>ID Registro</th><th>Campo</th><th>Valor anterior</th><th>Valor nuevo</th><th>IP</th></tr>
+      </thead>
+      <tbody>
+        {% for e in entries %}
+        <tr>
+          <td class="text-nowrap">{{ e.fecha_hora | dt }}</td>
+          <td>{{ e.usuario.nombre_completo if e.usuario else '—' }}</td>
+          <td>
+            {% if e.accion == 'CREAR' %}<span class="badge bg-success">CREAR</span>
+            {% elif e.accion == 'MODIFICAR' %}<span class="badge bg-warning text-dark">MODIFICAR</span>
+            {% elif e.accion == 'LECTURA' %}<span class="badge bg-info text-dark">LECTURA</span>
+            {% elif e.accion == 'ANULAR' %}<span class="badge bg-danger">ANULAR</span>
+            {% elif e.accion == 'CORREGIR' %}<span class="badge bg-purple">CORREGIR</span>
+            {% elif e.accion == 'INTENTO_NO_AUTORIZADO' %}<span class="badge bg-dark">NO AUTORIZADO</span>
+            {% else %}<span class="badge bg-secondary">{{ e.accion }}</span>{% endif %}
+          </td>
+          <td>{% if e.registro_id %}<a href="/registros/{{ e.registro_id }}">{{ e.registro_id }}</a>{% else %}—{% endif %}</td>
+          <td>{{ e.campo_modificado or '—' }}</td>
+          <td class="text-truncate" style="max-width:150px" title="{{ e.valor_anterior or '' }}">{{ e.valor_anterior or '—' }}</td>
+          <td class="text-truncate" style="max-width:150px" title="{{ e.valor_nuevo or '' }}">{{ e.valor_nuevo or '—' }}</td>
+          <td>{{ e.ip_origen or '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center text-muted py-4">No hay entradas de auditoría.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if total_pages > 1 %}
+  <div class="card-footer">
+    <nav>
+      <ul class="pagination pagination-sm mb-0 justify-content-center">
+        {% if page > 1 %}<li class="page-item"><a class="page-link" href="?{{ request.url.query | replace('page=' ~ page, 'page=' ~ (page-1)) }}">«</a></li>{% endif %}
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {% if p == page %}active{% endif %}"><a class="page-link" href="?{{ request.url.query | replace('page=' ~ page, 'page=' ~ p) if 'page=' in request.url.query else request.url.query ~ '&page=' ~ p }}">{{ p }}</a></li>
+        {% endfor %}
+        {% if page < total_pages %}<li class="page-item"><a class="page-link" href="?{{ request.url.query | replace('page=' ~ page, 'page=' ~ (page+1)) }}">»</a></li>{% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
