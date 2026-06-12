@@ -21,10 +21,14 @@
       "PowerShell(python -m uvicorn --version 2>&1)",
       "PowerShell(python --version 2>&1)",
       "Bash(python migrate_to_postgres.py)",
-      "Bash(powershell -command \"Get-Content cmva_export.sql -TotalCount 30\")"
+      "Bash(powershell -command \"Get-Content cmva_export.sql -TotalCount 30\")",
+      "Bash(ls \"C:\\\\Program Files\\\\PostgreSQL\\\\\" 2>/dev/null || echo \"No encontrado\")",
+      "Read(//c/Program Files/PostgreSQL\" 2>/dev/**)",
+      "Read(//c/Program Files/PostgreSQL/**)"
     ],
     "additionalDirectories": [
-      "c:\\Users\\usuario\\AppData\\Local\\Temp"
+      "c:\\Users\\usuario\\AppData\\Local\\Temp",
+      "c:\\Users\\usuario\\Downloads\\CMVA-SOFTWARE\\CMVA IMAGENES DIAGNOSTICAS\\cmva_app\\static"
     ]
   }
 }
