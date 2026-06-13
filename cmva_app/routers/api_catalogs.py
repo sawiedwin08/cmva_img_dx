@@ -162,6 +162,9 @@ _CATALOG_MAP = {
     "reportes":       (models.Reporte,        ["nombre"],                  [],                  None),
     "especialidades": (models.Especialidad,   ["nombre", "descripcion"],   [],                  None),
     "profesionales":  (models.Profesional,    ["nombre"],                  [],                  ["MEDICO GENERAL", "ESPECIALISTA"]),
+    "tecnologos":     (models.Tecnologo,      ["nombre"],                  [],                  None),
+    "radiologos":     (models.Radiologo,      ["nombre"],                  ["especialidad_id"], None),
+    "transcriptoras": (models.Transcriptora,  ["nombre"],                  [],                  None),
 }
 
 

@@ -1,0 +1,143 @@
+================================================
+CMVA - Imagenes Diagnosticas
+Resumen Tecnico de la Estructura del Proyecto
+Generado: 2026-06-13
+================================================
+
+1. CARPETA FRONTEND
+------------------------------------------------
+  cmva_app/templates/     Plantillas HTML (Jinja2)
+  cmva_app/static/        CSS, JS e imagenes propios
+
+2. CARPETA BACKEND
+------------------------------------------------
+  cmva_app/               Raiz del backend (Python/FastAPI)
+  cmva_app/routers/       Modulos de rutas y logica
+
+3. TECNOLOGIA FRONTEND
+------------------------------------------------
+  - Jinja2          Motor de plantillas HTML (renderizado en servidor)
+  - Bootstrap 5     Framework CSS (cargado por CDN)
+  - Chart.js        Graficas del dashboard (CDN)
+  - static/css/custom.css   Estilos propios del proyecto
+  - static/js/app.js        JavaScript propio del proyecto
+
+4. TECNOLOGIA BACKEND
+------------------------------------------------
+  - FastAPI         Framework principal (Python)
+  - SQLAlchemy      ORM para base de datos
+  - SQLite          Base de datos local (cmva_rayosx.db)
+  - JWT cookies     Autenticacion (python-jose + bcrypt)
+  - Uvicorn         Servidor ASGI
+
+5. PANTALLAS PRINCIPALES (templates/)
+------------------------------------------------
+  login.html                  Login
+  dashboard.html              Dashboard estadistico
+  auditoria.html              Auditoria de cambios
+  manual.html                 Manual de usuario
+  cambiar_password.html       Cambio de contrasena
+  base.html                   Layout base (menu y estructura global)
+
+  registros/
+    list.html                 Listado de estudios (RX, TAC, ECO)
+    form.html                 Formulario nuevo/editar estudio
+    detail.html               Detalle de un estudio
+    lectura.html              Lectura radiologica
+
+  catalogs/
+    index.html                Pantalla principal de catalogos
+    list.html                 Lista de catalogos
+    personal.html             Gestion de profesionales/personal
+
+  admin/
+    usuarios.html             Administracion de usuarios
+
+6. RUTAS DEL SISTEMA
+------------------------------------------------
+  RUTAS HTML (vistas renderizadas):
+    routers/auth_router.py        Login / logout
+    routers/registros_router.py   CRUD estudios (RX, TAC, ECO)
+    routers/catalogs_router.py    Catalogos y profesionales
+    routers/users_router.py       Gestion de usuarios
+    routers/dashboard_router.py   Dashboard
+    routers/export_router.py      Exportacion Excel / TXT
+    routers/audit_router.py       Auditoria
+    routers/manual_router.py      Manual
+
+  RUTAS API REST (responden JSON):
+    routers/api_auth.py           Auth API
+    routers/api_registros.py      Registros API
+    routers/api_catalogs.py       Catalogos API
+    routers/api_dashboard.py      Dashboard API
+    routers/api_usuarios.py       Usuarios API
+
+7. CONTROLADORES Y SERVICIOS DEL BACKEND
+------------------------------------------------
+  main.py               Punto de entrada; registra routers y corre
+                        migraciones automaticas al arrancar
+  auth.py               Logica de autenticacion JWT, validacion de
+                        tokens, extraccion de usuario actual
+  models.py             Modelos SQLAlchemy (tablas de la BD)
+  utils.py              Funciones auxiliares y flash messages
+  templates_config.py   Configuracion del motor Jinja2
+  seed.py               Datos iniciales y estudios de ejemplo
+  database.py           Conexion a la base de datos
+
+8. CONEXION A BASE DE DATOS
+------------------------------------------------
+  Archivo principal:  database.py
+  Base de datos:      cmva_app/cmva_rayosx.db  (SQLite)
+  Motor alternativo:  PostgreSQL via variable de entorno DATABASE_URL
+  ORM:                SQLAlchemy (SessionLocal + Base declarativa)
+
+9. ARCHIVOS PARA CAMBIOS EN PANTALLAS (UI)
+------------------------------------------------
+  Que quiero cambiar              Archivo a modificar
+  -----------------------------------------
+  Menu, navbar, estructura global templates/base.html
+  Formulario registro estudios    templates/registros/form.html
+  Tabla / listado de estudios     templates/registros/list.html
+  Detalle de un estudio           templates/registros/detail.html
+  Lectura radiologica             templates/registros/lectura.html
+  Dashboard (KPIs y graficas)     templates/dashboard.html
+  Estilos visuales globales       static/css/custom.css
+  Comportamiento JS frontend      static/js/app.js
+
+10. ARCHIVOS PARA CAMBIOS EN LOGICA, VALIDACIONES O PERMISOS
+------------------------------------------------
+  Que quiero cambiar              Archivo a modificar
+  -----------------------------------------
+  Campos de la base de datos      models.py + main.py (migraciones)
+  Logica de registros (CRUD)      routers/registros_router.py
+  Logica de catalogos             routers/catalogs_router.py
+  Logica de usuarios              routers/users_router.py
+  Roles y permisos de acceso      auth.py + cada router (dependencias)
+  Validaciones de formulario      routers/registros_router.py
+  Logica de exportacion           routers/export_router.py
+  Estadisticas del dashboard      routers/dashboard_router.py
+  Datos iniciales / de prueba     seed.py
+
+================================================
+NOTAS ADICIONALES
+================================================
+  Tipos de estudio soportados:  RX (Rayos X), TAC, ECO (Ecografia)
+  Formato ID_REGISTRO:  {TIPO}-{yyyy}-{MM}-{consecutivo}
+                        Ej: RX-2026-06-000001
+
+  Roles del sistema:
+    ADMINISTRADOR       Acceso total
+    TECNOLOGO           Registra estudios (campos operativos)
+    RADIOLOGO           Completa lectura radiologica
+    CONSULTA/GERENCIA   Solo consulta y exportacion
+
+  Arranque local:
+    iniciar_servidor.bat
+    o: python -m uvicorn main:app --host 0.0.0.0 --port 8000
+    URL: http://localhost:8000
+
+  Despliegue online:  Railway.app
+    Variable requerida: SECRET_KEY
+    Variable opcional:  DATABASE_URL (PostgreSQL)
+
+================================================
