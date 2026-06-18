@@ -18,7 +18,20 @@
       "Bash(git -C \"c:\\\\Users\\\\usuario\\\\Downloads\\\\CMVA-SOFTWARE\\\\CMVA IMAGENES DIAGNOSTICAS\" log --oneline -10)",
       "Bash(python -m uvicorn main:app --host 0.0.0.0 --port 8000)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/login)",
-      "Bash(python -c \"from routers import registros_router; print\\('OK'\\)\")"
+      "Bash(python -c \"from routers import registros_router; print\\('OK'\\)\")",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, '.'\\); import models; print\\('models OK'\\)\")",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, '.'\\); import routers.api_registros; import routers.api_catalogs; import routers.api_auth; import routers.api_dashboard; import routers.api_usuarios; print\\('all routers OK'\\)\")",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, '.'\\); import main; print\\('main OK'\\)\")",
+      "Bash(python -m uvicorn main:app --host 127.0.0.1 --port 8001)",
+      "Bash(curl -s -X POST http://127.0.0.1:8001/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"usuario\\\\\":\\\\\"admin\\\\\",\\\\\"password\\\\\":\\\\\"admin\\\\\"}\")",
+      "Bash(ls -la frontend/)",
+      "Bash(dir frontend/)",
+      "Bash(cat Dockerfile)",
+      "Bash(cat render.yaml)",
+      "Bash(cat cmva_app/Procfile)",
+      "Bash(curl -s http://127.0.0.1:8001/login)",
+      "Bash(curl -s -X POST http://127.0.0.1:8001/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"usuario\\\\\":\\\\\"ADM\\\\\",\\\\\"password\\\\\":\\\\\"admin\\\\\"}\")",
+      "Bash(curl -s -X POST http://127.0.0.1:8001/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"usuario\\\\\":\\\\\"admin\\\\\",\\\\\"password\\\\\":\\\\\"Admin2024*\\\\\"}\")"
     ]
   }
 }

@@ -24,7 +24,11 @@
       "Bash(powershell -command \"Get-Content cmva_export.sql -TotalCount 30\")",
       "Bash(ls \"C:\\\\Program Files\\\\PostgreSQL\\\\\" 2>/dev/null || echo \"No encontrado\")",
       "Read(//c/Program Files/PostgreSQL\" 2>/dev/**)",
-      "Read(//c/Program Files/PostgreSQL/**)"
+      "Read(//c/Program Files/PostgreSQL/**)",
+      "Bash(echo \"---exit:$?\")",
+      "Bash(python -m uvicorn main:app --host 127.0.0.1 --port 8002)",
+      "Bash(curl -s http://127.0.0.1:8002/)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\" -X POST http://127.0.0.1:8002/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"usuario\\\\\":\\\\\"admin\\\\\",\\\\\"password\\\\\":\\\\\"Admin2024*\\\\\"}\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\usuario\\AppData\\Local\\Temp",
