@@ -126,8 +126,7 @@ export default function RegistroForm() {
     return null
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault()
+  async function submit(estadoInicial = 'PENDIENTE') {
     const err = validate()
     if (err) { setError(err); return }
     setSaving(true)
@@ -149,7 +148,7 @@ export default function RegistroForm() {
         contrastado_si_no: esTAC ? form.contrastado_si_no : 'NO',
       }
       if (modo === 'nuevo') {
-        await api.post('/registros', body)
+        await api.post('/registros', { ...body, estado: estadoInicial })
       } else {
         await api.put(`/registros/${id}`, body)
       }
@@ -159,6 +158,11 @@ export default function RegistroForm() {
     } finally {
       setSaving(false)
     }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    submit('PENDIENTE')
   }
 
   if (!cats) return <div className="text-center py-5"><div className="spinner-border text-primary" /></div>
@@ -375,9 +379,19 @@ export default function RegistroForm() {
           </div>
         )}
 
-        <div className="d-flex gap-2 justify-content-end">
+        <div className="d-flex gap-2 justify-content-end flex-wrap">
           <button type="button" className="btn btn-outline-secondary"
             onClick={() => navigate(-1)}>Cancelar</button>
+          {modo === 'nuevo' && (
+            <button type="button" className="btn btn-warning" disabled={saving}
+              title="Guardar el registro pendiente de carga completa"
+              onClick={() => submit('POR CARGAR')}>
+              {saving
+                ? <><span className="spinner-border spinner-border-sm me-2" />Guardando...</>
+                : <><i className="fa-solid fa-clock me-2" />Guardar como Por Cargar</>
+              }
+            </button>
+          )}
           <button type="submit" className="btn btn-primary" disabled={saving}>
             {saving
               ? <><span className="spinner-border spinner-border-sm me-2" />Guardando...</>

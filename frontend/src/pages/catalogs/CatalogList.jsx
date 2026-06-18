@@ -10,6 +10,9 @@ const CATALOG_META = {
   causas_rechazo: { title: 'Causas de Rechazo',     fields: ['descripcion'] },
   reportes:       { title: 'Reportes',              fields: ['nombre'] },
   especialidades: { title: 'Especialidades',        fields: ['nombre', 'descripcion'] },
+  tecnologos:     { title: 'Tecnólogos',            fields: ['nombre'] },
+  radiologos:     { title: 'Radiólogos',            fields: ['nombre'] },
+  transcriptoras: { title: 'Transcriptoras',        fields: ['nombre'] },
 }
 
 const CATALOG_SIMPLE_KEYS = Object.keys(CATALOG_META)

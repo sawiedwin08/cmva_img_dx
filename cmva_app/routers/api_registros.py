@@ -157,6 +157,7 @@ class RegistroCreateBody(BaseModel):
     observaciones_tecnologo: Optional[str] = None
     tecnologo_id: Optional[int] = None
     reporte_id: Optional[int] = None
+    estado: Optional[str] = "PENDIENTE"
 
 
 @router.post("")
@@ -191,6 +192,10 @@ async def api_crear_registro(
     na_causa = db.query(models.CausaRechazo).filter_by(descripcion="NA").first()
     codigo = utils.generate_codigo_registro(db, tipo)
 
+    estado_inicial = (body.estado or "PENDIENTE").upper()
+    if estado_inicial not in ("PENDIENTE", "POR CARGAR"):
+        estado_inicial = "PENDIENTE"
+
     registro = models.RegistroRayosX(
         codigo_registro=codigo,
         tipo_estudio_principal=tipo,
@@ -212,7 +217,7 @@ async def api_crear_registro(
         causa_rechazo_id=na_causa.id if na_causa else None,
         tecnologo_id=body.tecnologo_id,
         reporte_id=body.reporte_id,
-        estado="PENDIENTE",
+        estado=estado_inicial,
         creado_por_id=user.id,
     )
     db.add(registro)
@@ -355,6 +360,30 @@ async def api_guardar_lectura(
     registro.estado = "LEIDO"
     registro.leido_por_id = user.id
     utils.log_audit(db, "LECTURA", user.id, registro.id, ip=request.client.host if request.client else None)
+    db.commit()
+    db.refresh(registro)
+    return _reg_dict(registro)
+
+
+@router.post("/{registro_id}/activar")
+async def api_activar_registro(
+    request: Request,
+    registro_id: int,
+    db: Session = Depends(get_db),
+):
+    user = _require(request, db)
+    if not utils.can_create_registro(user):
+        raise HTTPException(status_code=403, detail="Sin permiso")
+
+    registro = db.query(models.RegistroRayosX).filter_by(id=registro_id).first()
+    if not registro:
+        raise HTTPException(status_code=404, detail="Registro no encontrado")
+    if registro.estado != "POR CARGAR":
+        raise HTTPException(status_code=422, detail="El registro no está en estado POR CARGAR")
+
+    registro.estado = "PENDIENTE"
+    registro.modificado_por_id = user.id
+    utils.log_audit(db, "ACTIVAR", user.id, registro.id, ip=request.client.host if request.client else None)
     db.commit()
     db.refresh(registro)
     return _reg_dict(registro)

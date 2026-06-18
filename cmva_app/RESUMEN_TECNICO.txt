@@ -140,4 +140,6 @@ NOTAS ADICIONALES
     Variable requerida: SECRET_KEY
     Variable opcional:  DATABASE_URL (PostgreSQL)
 
+URL para app-web
+https://cmva-app.onrender.com/login
 ================================================

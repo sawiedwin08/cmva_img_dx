@@ -4,7 +4,16 @@ import api from '../../api/client'
 import { useAuth } from '../../contexts/AuthContext'
 
 const TIPOS = { RX: 'primary', TAC: 'info', ECO: 'success' }
-const ESTADOS = { PENDIENTE: 'warning', LEIDO: 'success', CORREGIDO: 'info', ANULADO: 'secondary' }
+const ESTADOS = { 'POR CARGAR': 'warning', PENDIENTE: 'primary', LEIDO: 'success', CORREGIDO: 'info', ANULADO: 'secondary' }
+
+const TABS_ESTADO = [
+  { val: '',           label: 'Todos' },
+  { val: 'POR CARGAR', label: 'Por Cargar' },
+  { val: 'PENDIENTE',  label: 'Pendiente' },
+  { val: 'LEIDO',      label: 'Leído' },
+  { val: 'CORREGIDO',  label: 'Corregido' },
+  { val: 'ANULADO',    label: 'Anulado' },
+]
 
 function fdt(iso) {
   if (!iso) return '—'
@@ -52,6 +61,15 @@ export default function RegistrosList() {
     setSearchParams(next)
   }
 
+  async function activar(registroId) {
+    try {
+      await api.post(`/registros/${registroId}/activar`)
+      load()
+    } catch {
+      // ignorar silenciosamente — el reload mostrará el estado real
+    }
+  }
+
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -73,6 +91,23 @@ export default function RegistrosList() {
             </Link>
           )}
         </div>
+      </div>
+
+      {/* Pestañas de estado rápido */}
+      <div className="d-flex gap-1 mb-2 flex-wrap">
+        {TABS_ESTADO.map(({ val, label }) => {
+          const color = ESTADOS[val] || 'secondary'
+          const active = (params.estado || '') === val
+          return (
+            <button
+              key={val}
+              className={`btn btn-sm ${active ? `btn-${color}` : `btn-outline-${color}`}`}
+              onClick={() => setParam('estado', val)}
+            >
+              {label}
+            </button>
+          )
+        })}
       </div>
 
       {/* Filtros */}
@@ -104,6 +139,7 @@ export default function RegistrosList() {
                 value={params.estado || ''}
                 onChange={e => setParam('estado', e.target.value)}>
                 <option value="">Estado</option>
+                <option value="POR CARGAR">POR CARGAR</option>
                 <option>PENDIENTE</option>
                 <option>LEIDO</option>
                 <option>CORREGIDO</option>
@@ -179,6 +215,15 @@ export default function RegistrosList() {
                           <Link to={`/registros/${r.id}/editar`} className="btn btn-outline-secondary btn-sm">
                             <i className="fa-solid fa-pen" />
                           </Link>
+                        )}
+                        {canCreate && r.estado === 'POR CARGAR' && (
+                          <button
+                            className="btn btn-outline-primary btn-sm"
+                            title="Marcar como Pendiente (ya cargado)"
+                            onClick={() => activar(r.id)}
+                          >
+                            <i className="fa-solid fa-check" />
+                          </button>
                         )}
                         {canLectura && r.estado === 'PENDIENTE' && (
                           <Link to={`/registros/${r.id}/lectura`} className="btn btn-outline-success btn-sm">
