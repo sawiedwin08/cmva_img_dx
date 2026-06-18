@@ -80,7 +80,7 @@ export default function RegistroForm() {
         const reg = r.data
         setReg(reg)
         const fechaOrden = reg.fecha_hora_orden
-          ? new Date(reg.fecha_hora_orden).toISOString().slice(0, 16) : ''
+          ? reg.fecha_hora_orden.slice(0, 16).replace(' ', 'T') : ''
         setForm({
           tipo_estudio_principal: reg.tipo_estudio_principal || 'RX',
           fecha_hora_orden: fechaOrden,
