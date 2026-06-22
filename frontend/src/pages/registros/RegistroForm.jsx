@@ -351,7 +351,8 @@ export default function RegistroForm() {
               <div className="col-md-3">
                 <label className="form-label">Reporte</label>
                 <select className="form-select" value={form.reporte_id}
-                  onChange={e => set('reporte_id', e.target.value)}>
+                  onChange={e => set('reporte_id', e.target.value)}
+                  disabled={modo === 'nuevo'}>
                   <option value="">Seleccione...</option>
                   {cats.reportes.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
                 </select>
@@ -382,16 +383,6 @@ export default function RegistroForm() {
         <div className="d-flex gap-2 justify-content-end flex-wrap">
           <button type="button" className="btn btn-outline-secondary"
             onClick={() => navigate(-1)}>Cancelar</button>
-          {modo === 'nuevo' && (
-            <button type="button" className="btn btn-warning" disabled={saving}
-              title="Guardar el registro pendiente de carga completa"
-              onClick={() => submit('POR CARGAR')}>
-              {saving
-                ? <><span className="spinner-border spinner-border-sm me-2" />Guardando...</>
-                : <><i className="fa-solid fa-clock me-2" />Guardar como Por Cargar</>
-              }
-            </button>
-          )}
           <button type="submit" className="btn btn-primary" disabled={saving}>
             {saving
               ? <><span className="spinner-border spinner-border-sm me-2" />Guardando...</>

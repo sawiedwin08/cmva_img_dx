@@ -30,6 +30,7 @@ def _run_migrations(eng):
         ("observaciones_tecnologo","TEXT"),
         ("lectura_radiologo",      "TEXT"),
         ("observaciones_radiologo","TEXT"),
+        ("estado_carga",           "VARCHAR(30)"),
     ]
     with eng.begin() as conn:
         for col, col_type in new_reg_cols:

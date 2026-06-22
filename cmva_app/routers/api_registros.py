@@ -57,6 +57,7 @@ def _reg_dict(r: models.RegistroRayosX) -> dict:
             if r.fecha_hora_lectura_radiologo else None
         ),
         "observaciones_radiologo": r.observaciones_radiologo,
+        "estado_carga": r.estado_carga,
         "estado": r.estado or "PENDIENTE",
         "motivo_anulacion": r.motivo_anulacion,
         "creado_por_id": r.creado_por_id,

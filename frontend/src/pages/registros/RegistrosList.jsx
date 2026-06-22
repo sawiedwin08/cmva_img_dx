@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext'
 
 const TIPOS = { RX: 'primary', TAC: 'info', ECO: 'success' }
 const ESTADOS = { 'POR CARGAR': 'warning', PENDIENTE: 'primary', LEIDO: 'success', CORREGIDO: 'info', ANULADO: 'secondary' }
+const ESTADOS_CARGA = { 'POR CARGAR': 'warning', 'CARGADO': 'success' }
 
 const TABS_ESTADO = [
   { val: '',           label: 'Todos' },
@@ -61,15 +62,6 @@ export default function RegistrosList() {
     setSearchParams(next)
   }
 
-  async function activar(registroId) {
-    try {
-      await api.post(`/registros/${registroId}/activar`)
-      load()
-    } catch {
-      // ignorar silenciosamente — el reload mostrará el estado real
-    }
-  }
-
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -91,23 +83,6 @@ export default function RegistrosList() {
             </Link>
           )}
         </div>
-      </div>
-
-      {/* Pestañas de estado rápido */}
-      <div className="d-flex gap-1 mb-2 flex-wrap">
-        {TABS_ESTADO.map(({ val, label }) => {
-          const color = ESTADOS[val] || 'secondary'
-          const active = (params.estado || '') === val
-          return (
-            <button
-              key={val}
-              className={`btn btn-sm ${active ? `btn-${color}` : `btn-outline-${color}`}`}
-              onClick={() => setParam('estado', val)}
-            >
-              {label}
-            </button>
-          )
-        })}
       </div>
 
       {/* Filtros */}
@@ -181,13 +156,14 @@ export default function RegistrosList() {
                   <th>Identificación</th>
                   <th>Paciente</th>
                   <th>Estudio</th>
+                  <th>Estado Carga</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {data.registros.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center text-muted py-4">Sin registros</td></tr>
+                  <tr><td colSpan={9} className="text-center text-muted py-4">Sin registros</td></tr>
                 ) : data.registros.map(r => (
                   <tr key={r.id} className={r.estado === 'ANULADO' ? 'table-secondary opacity-75' : ''}>
                     <td><code className="small">{r.codigo_registro}</code></td>
@@ -200,6 +176,11 @@ export default function RegistrosList() {
                     <td className="small">{r.identificacion}</td>
                     <td className="small">{r.nombre_paciente}</td>
                     <td className="small">{r.estudio_nombre}</td>
+                    <td>
+                      {r.estado_carga
+                        ? <span className={`badge bg-${ESTADOS_CARGA[r.estado_carga] || 'secondary'}`}>{r.estado_carga}</span>
+                        : <span className="text-muted small">—</span>}
+                    </td>
                     <td>
                       <span className={`badge bg-${ESTADOS[r.estado] || 'secondary'}`}>
                         {r.estado}
@@ -216,16 +197,7 @@ export default function RegistrosList() {
                             <i className="fa-solid fa-pen" />
                           </Link>
                         )}
-                        {canCreate && r.estado === 'POR CARGAR' && (
-                          <button
-                            className="btn btn-outline-primary btn-sm"
-                            title="Marcar como Pendiente (ya cargado)"
-                            onClick={() => activar(r.id)}
-                          >
-                            <i className="fa-solid fa-check" />
-                          </button>
-                        )}
-                        {canLectura && r.estado === 'PENDIENTE' && (
+                                        {canLectura && r.estado === 'PENDIENTE' && (
                           <Link to={`/registros/${r.id}/lectura`} className="btn btn-outline-success btn-sm">
                             <i className="fa-solid fa-stethoscope" />
                           </Link>

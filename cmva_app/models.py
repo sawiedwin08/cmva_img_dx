@@ -153,6 +153,7 @@ class RegistroRayosX(Base):
     observaciones_radiologo = Column(Text, nullable=True)
     observaciones = Column(Text, nullable=True)  # columna legado, no usar en nuevos registros
     # Estado y trazabilidad
+    estado_carga = Column(String(30), nullable=True)
     estado = Column(String(30), default="PENDIENTE", nullable=False)
     creado_por_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
     modificado_por_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
