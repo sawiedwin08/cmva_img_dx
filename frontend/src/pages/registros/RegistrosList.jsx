@@ -156,8 +156,8 @@ export default function RegistrosList() {
                   <th>Identificación</th>
                   <th>Paciente</th>
                   <th>Estudio</th>
-                  <th>Lectura</th>
                   <th>Reporte</th>
+                  <th>Lectura</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
