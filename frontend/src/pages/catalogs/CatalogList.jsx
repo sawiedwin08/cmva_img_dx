@@ -24,7 +24,8 @@ function catalogEndpoint(key) {
 
 export default function CatalogList() {
   const { catalog } = useParams()
-  const meta = CATALOG_META[catalog] ?? { title: catalog, fields: ['nombre'] }
+  const metaKey = catalog.replace(/-/g, '_')
+  const meta = CATALOG_META[metaKey] ?? { title: catalog, fields: ['nombre'] }
   const [items, setItems]   = useState([])
   const [msg, setMsg]       = useState({ type: '', text: '' })
   const [loading, setLoading] = useState(true)
