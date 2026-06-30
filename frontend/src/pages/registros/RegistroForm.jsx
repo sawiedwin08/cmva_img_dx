@@ -43,6 +43,7 @@ export default function RegistroForm() {
 
   // Validación en tiempo real de campos numéricos con rango
   const [fieldErrors, setFieldErrors] = useState({})
+  const [submitted, setSubmitted] = useState(false)
 
   function validateField(key, raw) {
     const val = parseFloat(raw)
@@ -67,6 +68,53 @@ export default function RegistroForm() {
       set(key, fixed)
       setFieldErrors(prev => ({ ...prev, [key]: '' }))
     }
+  }
+
+  function getRequiredErrors() {
+    const f = form
+    const fEsTAC = f.tipo_estudio_principal === 'TAC'
+    const fEsContrastado = f.contrastado_si_no === 'SI'
+    const errs = {}
+    if (!f.fecha_hora_orden)  errs.fecha_hora_orden  = 'Campo obligatorio'
+    if (!f.identificacion?.trim()) errs.identificacion = 'Campo obligatorio'
+    if (!f.nombre_paciente?.trim()) errs.nombre_paciente = 'Campo obligatorio'
+    if (!f.estudio_id)        errs.estudio_id        = 'Seleccione un estudio'
+    if (!f.servicio_id)       errs.servicio_id       = 'Seleccione un servicio'
+    if (!f.numero_tomas || isNaN(parseInt(f.numero_tomas))) errs.numero_tomas = 'Campo obligatorio'
+    if (f.kv === '' || f.kv === undefined) errs.kv = 'Campo obligatorio'
+    if (f.mas === '' || f.mas === undefined) errs.mas = 'Campo obligatorio'
+    const kvRange  = validateField('kv',  String(f.kv))
+    const masRange = validateField('mas', String(f.mas))
+    if (kvRange)  errs.kv  = kvRange
+    if (masRange) errs.mas = masRange
+    if (fEsTAC && fEsContrastado && f.volumen_contraste_ml !== '') {
+      const volRange = validateField('volumen_contraste_ml', String(f.volumen_contraste_ml))
+      if (volRange) errs.volumen_contraste_ml = volRange
+    }
+    return errs
+  }
+
+  // Nombres legibles para el resumen de errores
+  const FIELD_LABELS = {
+    fecha_hora_orden:      'Fecha/Hora Orden',
+    identificacion:        'Identificación',
+    nombre_paciente:       'Nombre y Apellido',
+    estudio_id:            'Tipo Estudio',
+    servicio_id:           'Servicio',
+    numero_tomas:          'N° Tomas',
+    kv:                    'KV',
+    mas:                   'mAs',
+    volumen_contraste_ml:  'Volumen Contraste (ml)',
+    motivo_correccion:     'Motivo de Corrección',
+  }
+
+  function inv(key) {
+    return submitted && (fieldErrors[key] || getRequiredErrors()[key])
+      ? ' is-invalid' : ''
+  }
+  function errMsg(key) {
+    const msg = (submitted && (fieldErrors[key] || getRequiredErrors()[key]))
+    return msg ? <div className="invalid-feedback">{msg}</div> : null
   }
 
   useEffect(() => {
@@ -111,24 +159,18 @@ export default function RegistroForm() {
 
   function set(key, val) { setForm(f => ({ ...f, [key]: val })) }
 
-  function validate() {
-    // Forzar validación de los tres campos antes de enviar
-    const kvErr  = validateField('kv',  String(form.kv))
-    const masErr = validateField('mas', String(form.mas))
-    const volErr = (esTAC && esContrastado && form.volumen_contraste_ml !== '')
-      ? validateField('volumen_contraste_ml', String(form.volumen_contraste_ml))
-      : ''
-
-    if (kvErr || masErr || volErr) {
-      setFieldErrors({ kv: kvErr, mas: masErr, volumen_contraste_ml: volErr })
-      return kvErr || masErr || volErr
-    }
-    return null
-  }
-
   async function submit(estadoInicial = 'PENDIENTE') {
-    const err = validate()
-    if (err) { setError(err); return }
+    setSubmitted(true)
+    const reqErrs = getRequiredErrors()
+    const needsMotivoNow = modo === 'editar' && isAdmin && registro && ['LEIDO', 'CORREGIDO'].includes(registro.estado)
+    if (needsMotivoNow && !form.motivo_correccion?.trim()) {
+      reqErrs.motivo_correccion = 'Campo obligatorio'
+    }
+    if (Object.keys(reqErrs).length > 0) {
+      const labels = Object.keys(reqErrs).map(k => FIELD_LABELS[k] || k)
+      setError(`Faltan campos obligatorios: ${labels.join(', ')}`)
+      return
+    }
     setSaving(true)
     setError('')
     try {
@@ -215,37 +257,42 @@ export default function RegistroForm() {
             <div className="row g-3">
               <div className="col-md-3">
                 <label className="form-label">Fecha/Hora Orden <span className="text-danger">*</span></label>
-                <input type="datetime-local" className="form-control"
+                <input type="datetime-local" className={`form-control${inv('fecha_hora_orden')}`}
                   value={form.fecha_hora_orden}
-                  onChange={e => set('fecha_hora_orden', e.target.value)} required />
+                  onChange={e => set('fecha_hora_orden', e.target.value)} />
+                {errMsg('fecha_hora_orden')}
               </div>
               <div className="col-md-3">
                 <label className="form-label">Identificación <span className="text-danger">*</span></label>
-                <input type="text" className="form-control"
+                <input type="text" className={`form-control${inv('identificacion')}`}
                   value={form.identificacion}
-                  onChange={e => set('identificacion', e.target.value)} required />
+                  onChange={e => set('identificacion', e.target.value)} />
+                {errMsg('identificacion')}
               </div>
               <div className="col-md-6">
                 <label className="form-label">Nombre y Apellido <span className="text-danger">*</span></label>
-                <input type="text" className="form-control"
+                <input type="text" className={`form-control${inv('nombre_paciente')}`}
                   value={form.nombre_paciente}
-                  onChange={e => set('nombre_paciente', e.target.value)} required />
+                  onChange={e => set('nombre_paciente', e.target.value)} />
+                {errMsg('nombre_paciente')}
               </div>
               <div className="col-md-4">
                 <label className="form-label">Tipo Estudio <span className="text-danger">*</span></label>
-                <select className="form-select" value={form.estudio_id}
-                  onChange={e => set('estudio_id', e.target.value)} required>
+                <select className={`form-select${inv('estudio_id')}`} value={form.estudio_id}
+                  onChange={e => set('estudio_id', e.target.value)}>
                   <option value="">Seleccione...</option>
                   {estudios.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
                 </select>
+                {errMsg('estudio_id')}
               </div>
               <div className="col-md-4">
                 <label className="form-label">Servicio <span className="text-danger">*</span></label>
-                <select className="form-select" value={form.servicio_id}
-                  onChange={e => set('servicio_id', e.target.value)} required>
+                <select className={`form-select${inv('servicio_id')}`} value={form.servicio_id}
+                  onChange={e => set('servicio_id', e.target.value)}>
                   <option value="">Seleccione...</option>
                   {cats.servicios.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
                 </select>
+                {errMsg('servicio_id')}
               </div>
               <div className="col-md-4">
                 <label className="form-label">Profesional (Médico)</label>
@@ -280,14 +327,12 @@ export default function RegistroForm() {
                         <small className="text-muted ms-1">30 – 200</small>
                       </label>
                       <input type="number"
-                        className={`form-control${fieldErrors.volumen_contraste_ml ? ' is-invalid' : (form.volumen_contraste_ml !== '' ? ' is-valid' : '')}`}
+                        className={`form-control${inv('volumen_contraste_ml') || (fieldErrors.volumen_contraste_ml ? ' is-invalid' : (form.volumen_contraste_ml !== '' ? ' is-valid' : ''))}`}
                         min={30} max={200} step="0.1"
                         value={form.volumen_contraste_ml}
                         onChange={e => handleNumericChange('volumen_contraste_ml', e.target.value)}
                         onBlur={e => handleNumericBlur('volumen_contraste_ml', e.target.value, 30, 200)} />
-                      {fieldErrors.volumen_contraste_ml
-                        ? <div className="invalid-feedback">{fieldErrors.volumen_contraste_ml}</div>
-                        : <div className="valid-feedback">OK</div>}
+                      {errMsg('volumen_contraste_ml') || (form.volumen_contraste_ml !== '' && !fieldErrors.volumen_contraste_ml && <div className="valid-feedback">OK</div>)}
                     </div>
                   )}
                 </>
@@ -304,9 +349,10 @@ export default function RegistroForm() {
                 <label className="form-label">
                   N° Tomas <span className="text-danger">*</span>
                 </label>
-                <input type="number" className="form-control" min={1}
+                <input type="number" className={`form-control${inv('numero_tomas')}`} min={1}
                   value={form.numero_tomas}
-                  onChange={e => set('numero_tomas', e.target.value)} required />
+                  onChange={e => set('numero_tomas', e.target.value)} />
+                {errMsg('numero_tomas')}
               </div>
               <div className="col-md-2">
                 <label className="form-label">
@@ -314,15 +360,12 @@ export default function RegistroForm() {
                   <small className="text-muted ms-1">40–200</small>
                 </label>
                 <input type="number"
-                  className={`form-control${fieldErrors.kv ? ' is-invalid' : (form.kv !== '' ? ' is-valid' : '')}`}
+                  className={`form-control${inv('kv') || (fieldErrors.kv ? ' is-invalid' : (form.kv !== '' && !inv('kv') ? ' is-valid' : ''))}`}
                   min={40} max={200} step="0.1"
                   value={form.kv}
                   onChange={e => handleNumericChange('kv', e.target.value)}
-                  onBlur={e => handleNumericBlur('kv', e.target.value, 40, 200)}
-                  required />
-                {fieldErrors.kv
-                  ? <div className="invalid-feedback">{fieldErrors.kv}</div>
-                  : <div className="valid-feedback">OK</div>}
+                  onBlur={e => handleNumericBlur('kv', e.target.value, 40, 200)} />
+                {errMsg('kv') || (!inv('kv') && form.kv !== '' && !fieldErrors.kv && <div className="valid-feedback">OK</div>)}
               </div>
               <div className="col-md-2">
                 <label className="form-label">
@@ -330,15 +373,12 @@ export default function RegistroForm() {
                   <small className="text-muted ms-1">1.2–500</small>
                 </label>
                 <input type="number"
-                  className={`form-control${fieldErrors.mas ? ' is-invalid' : (form.mas !== '' ? ' is-valid' : '')}`}
+                  className={`form-control${inv('mas') || (fieldErrors.mas ? ' is-invalid' : (form.mas !== '' && !inv('mas') ? ' is-valid' : ''))}`}
                   min={1.2} max={500} step="0.1"
                   value={form.mas}
                   onChange={e => handleNumericChange('mas', e.target.value)}
-                  onBlur={e => handleNumericBlur('mas', e.target.value, 1.2, 500)}
-                  required />
-                {fieldErrors.mas
-                  ? <div className="invalid-feedback">{fieldErrors.mas}</div>
-                  : <div className="valid-feedback">OK</div>}
+                  onBlur={e => handleNumericBlur('mas', e.target.value, 1.2, 500)} />
+                {errMsg('mas') || (!inv('mas') && form.mas !== '' && !fieldErrors.mas && <div className="valid-feedback">OK</div>)}
               </div>
               <div className="col-md-3">
                 <label className="form-label">Tecnólogo</label>
@@ -371,11 +411,15 @@ export default function RegistroForm() {
           <div className="card mb-3 border-warning">
             <div className="card-header bg-warning">Motivo de Corrección</div>
             <div className="card-body">
-              <textarea className="form-control" rows={2}
+              <textarea
+                className={`form-control${submitted && !form.motivo_correccion?.trim() ? ' is-invalid' : ''}`}
+                rows={2}
                 placeholder="Describa el motivo de la corrección (obligatorio)"
                 value={form.motivo_correccion}
-                onChange={e => set('motivo_correccion', e.target.value)}
-                required />
+                onChange={e => set('motivo_correccion', e.target.value)} />
+              {submitted && !form.motivo_correccion?.trim() && (
+                <div className="invalid-feedback">Campo obligatorio</div>
+              )}
             </div>
           </div>
         )}
