@@ -7,6 +7,24 @@ const TIPOS = { RX: 'primary', TAC: 'info', ECO: 'success' }
 const ESTADOS = { 'POR CARGAR': 'warning', PENDIENTE: 'primary', LEIDO: 'success', CORREGIDO: 'info', ANULADO: 'secondary' }
 const ESTADOS_CARGA = { 'POR CARGAR': 'warning', 'CARGADO': 'success' }
 
+function FilterableHeader({ label, paramKey, options, currentValue, onSelect }) {
+  const vals = ['', ...options.map(o => o.val)]
+  const currentIndex = vals.indexOf(currentValue)
+  const nextVal = vals[(currentIndex + 1) % vals.length]
+
+  return (
+    <th style={{ whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }}
+      onClick={() => onSelect(paramKey, nextVal)}
+      title={`Filtrar por ${label}`}
+    >
+      {label}
+      {currentValue
+        ? <span className="ms-1 badge bg-warning text-dark" style={{ fontSize: '0.65rem' }}>{currentValue}</span>
+        : <i className="fa-solid fa-filter ms-1" style={{ fontSize: '0.65rem', opacity: 0.4 }} />}
+    </th>
+  )
+}
+
 const TABS_ESTADO = [
   { val: '',           label: 'Todos' },
   { val: 'POR CARGAR', label: 'Por Cargar' },
@@ -151,13 +169,44 @@ export default function RegistrosList() {
               <thead className="table-dark">
                 <tr>
                   <th>ID Registro</th>
-                  <th>Tipo</th>
+                  <FilterableHeader
+                    label="Tipo"
+                    paramKey="tipo_estudio_principal"
+                    options={[
+                      { val: 'RX', label: 'RX' },
+                      { val: 'TAC', label: 'TAC' },
+                      { val: 'ECO', label: 'ECO' },
+                    ]}
+                    currentValue={params.tipo_estudio_principal || ''}
+                    onSelect={setParam}
+                  />
                   <th>Fecha Toma</th>
                   <th>Identificación</th>
                   <th>Paciente</th>
                   <th>Estudio</th>
-                  <th>Reporte</th>
-                  <th>Lectura</th>
+                  <FilterableHeader
+                    label="Reporte"
+                    paramKey="estado_carga"
+                    options={[
+                      { val: 'POR CARGAR', label: 'Por Cargar' },
+                      { val: 'CARGADO', label: 'Cargado' },
+                    ]}
+                    currentValue={params.estado_carga || ''}
+                    onSelect={setParam}
+                  />
+                  <FilterableHeader
+                    label="Lectura"
+                    paramKey="estado"
+                    options={[
+                      { val: 'POR CARGAR', label: 'Por Cargar' },
+                      { val: 'PENDIENTE', label: 'Pendiente' },
+                      { val: 'LEIDO', label: 'Leído' },
+                      { val: 'CORREGIDO', label: 'Corregido' },
+                      { val: 'ANULADO', label: 'Anulado' },
+                    ]}
+                    currentValue={params.estado || ''}
+                    onSelect={setParam}
+                  />
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -193,7 +242,7 @@ export default function RegistrosList() {
                           <i className="fa-solid fa-eye" />
                         </Link>
                         {canCreate && r.estado !== 'ANULADO' && (
-                          <Link to={`/registros/${r.id}/editar`} className="btn btn-outline-secondary btn-sm">
+                          <Link to={`/registros/${r.id}/editar?page=${page}`} className="btn btn-outline-secondary btn-sm">
                             <i className="fa-solid fa-pen" />
                           </Link>
                         )}

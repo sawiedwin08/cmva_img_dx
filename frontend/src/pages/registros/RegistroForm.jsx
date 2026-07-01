@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import api from '../../api/client'
 import { useAuth } from '../../contexts/AuthContext'
 import Alert from '../../components/Alert'
@@ -10,6 +10,8 @@ export default function RegistroForm() {
   const { id } = useParams()
   const modo = id ? 'editar' : 'nuevo'
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const returnPage = searchParams.get('page') || '1'
   const { user, isAdmin } = useAuth()
 
   const [cats, setCats]     = useState(null)
@@ -194,7 +196,7 @@ export default function RegistroForm() {
       } else {
         await api.put(`/registros/${id}`, body)
       }
-      navigate('/registros')
+      navigate(`/registros?page=${returnPage}`)
     } catch (err) {
       setError(err.response?.data?.detail ?? 'Error al guardar')
     } finally {

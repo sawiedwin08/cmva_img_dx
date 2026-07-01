@@ -99,7 +99,7 @@ async def list_registros(
         "identificacion": identificacion, "nombre_paciente": nombre_paciente,
     }.items() if v}
 
-    per_page = 30
+    per_page = 15
     q = _build_query(db, params).order_by(models.RegistroRayosX.fecha_hora_toma.desc())
     total = q.count()
     registros = q.offset((page - 1) * per_page).limit(per_page).all()

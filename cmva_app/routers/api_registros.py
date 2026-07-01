@@ -117,7 +117,7 @@ async def api_list_registros(
     identificacion: Optional[str] = None,
     nombre_paciente: Optional[str] = None,
     page: int = 1,
-    per_page: int = 30,
+    per_page: int = 15,
     db: Session = Depends(get_db),
 ):
     _require(request, db)
