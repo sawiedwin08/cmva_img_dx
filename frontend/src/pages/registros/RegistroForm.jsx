@@ -12,7 +12,7 @@ export default function RegistroForm() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const returnPage = searchParams.get('page') || '1'
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, isTec } = useAuth()
 
   const [cats, setCats]     = useState(null)
   const [registro, setReg]  = useState(null)
@@ -164,7 +164,7 @@ export default function RegistroForm() {
   async function submit(estadoInicial = 'PENDIENTE') {
     setSubmitted(true)
     const reqErrs = getRequiredErrors()
-    const needsMotivoNow = modo === 'editar' && isAdmin && registro && ['LEIDO', 'CORREGIDO'].includes(registro.estado)
+    const needsMotivoNow = modo === 'editar' && (isAdmin || isTec) && registro && ['LEIDO', 'CORREGIDO'].includes(registro.estado)
     if (needsMotivoNow && !form.motivo_correccion?.trim()) {
       reqErrs.motivo_correccion = 'Campo obligatorio'
     }
@@ -211,7 +211,7 @@ export default function RegistroForm() {
 
   if (!cats) return <div className="text-center py-5"><div className="spinner-border text-primary" /></div>
 
-  const needsMotivo = modo === 'editar' && isAdmin && registro && ['LEIDO', 'CORREGIDO'].includes(registro.estado)
+  const needsMotivo = modo === 'editar' && (isAdmin || isTec) && registro && ['LEIDO', 'CORREGIDO'].includes(registro.estado)
 
   return (
     <>

@@ -157,6 +157,7 @@ export default function Manual() {
                           <ul className="mb-0 ps-3 small">
                             <li>Crear nuevos registros (Nuevo Estudio)</li>
                             <li>Editar registros que no estén ANULADOS</li>
+                            <li>Corregir registros en estado LEIDO o CORREGIDO (con motivo obligatorio)</li>
                             <li>Ver el detalle de cualquier registro</li>
                             <li>Exportar Excel y TXT</li>
                           </ul>

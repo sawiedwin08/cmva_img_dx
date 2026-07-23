@@ -246,7 +246,7 @@ export default function RegistrosList() {
                             <i className="fa-solid fa-pen" />
                           </Link>
                         )}
-                                        {canLectura && r.estado === 'PENDIENTE' && (
+                                        {canLectura && (r.estado === 'PENDIENTE' || r.estado === 'CORREGIDO') && (
                           <Link to={`/registros/${r.id}/lectura`} className="btn btn-outline-success btn-sm">
                             <i className="fa-solid fa-stethoscope" />
                           </Link>
