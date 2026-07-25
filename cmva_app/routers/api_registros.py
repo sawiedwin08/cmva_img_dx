@@ -274,8 +274,7 @@ async def api_editar_registro(
         raise HTTPException(status_code=404)
     if registro.estado == "ANULADO":
         raise HTTPException(status_code=422, detail="No se puede editar un registro anulado")
-    if utils.can_create_registro(user) and registro.estado in ("LEIDO", "CORREGIDO") and not body.motivo_correccion:
-        raise HTTPException(status_code=422, detail="Debe ingresar el motivo de corrección")
+
 
     try:
         fecha_orden_dt = datetime.fromisoformat(body.fecha_hora_orden)

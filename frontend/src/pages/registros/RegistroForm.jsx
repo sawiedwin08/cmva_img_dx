@@ -183,10 +183,7 @@ export default function RegistroForm() {
   async function submit(estadoInicial = 'PENDIENTE') {
     setSubmitted(true)
     const reqErrs = getRequiredErrors()
-    const needsMotivoNow = modo === 'editar' && (isAdmin || isTec) && registro && ['LEIDO', 'CORREGIDO'].includes(registro.estado)
-    if (needsMotivoNow && !form.motivo_correccion?.trim()) {
-      reqErrs.motivo_correccion = 'Campo obligatorio'
-    }
+
     if (Object.keys(reqErrs).length > 0) {
       const labels = Object.keys(reqErrs).map(k => FIELD_LABELS[k] || k)
       setError(`Faltan campos obligatorios: ${labels.join(', ')}`)
@@ -433,14 +430,11 @@ export default function RegistroForm() {
             <div className="card-header bg-warning">Motivo de Corrección</div>
             <div className="card-body">
               <textarea
-                className={`form-control${submitted && !form.motivo_correccion?.trim() ? ' is-invalid' : ''}`}
+                className="form-control"
                 rows={2}
-                placeholder="Describa el motivo de la corrección (obligatorio)"
+                placeholder="Describa el motivo de la corrección (opcional)"
                 value={form.motivo_correccion}
                 onChange={e => set('motivo_correccion', e.target.value)} />
-              {submitted && !form.motivo_correccion?.trim() && (
-                <div className="invalid-feedback">Campo obligatorio</div>
-              )}
             </div>
           </div>
         )}
