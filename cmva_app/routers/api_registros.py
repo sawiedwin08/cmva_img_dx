@@ -274,7 +274,7 @@ async def api_editar_registro(
         raise HTTPException(status_code=404)
     if registro.estado == "ANULADO":
         raise HTTPException(status_code=422, detail="No se puede editar un registro anulado")
-    if utils.is_admin(user) and registro.estado in ("LEIDO", "CORREGIDO") and not body.motivo_correccion:
+    if utils.can_create_registro(user) and registro.estado in ("LEIDO", "CORREGIDO") and not body.motivo_correccion:
         raise HTTPException(status_code=422, detail="Debe ingresar el motivo de corrección")
 
     try:
@@ -312,7 +312,7 @@ async def api_editar_registro(
     registro.tecnologo_id = body.tecnologo_id
     registro.reporte_id = body.reporte_id
     registro.modificado_por_id = user.id
-    if utils.is_admin(user) and body.motivo_correccion:
+    if utils.can_create_registro(user) and body.motivo_correccion:
         registro.estado = "CORREGIDO"
 
     utils.log_audit(db, "MODIFICAR", user.id, registro.id, motivo=body.motivo_correccion,
@@ -352,8 +352,13 @@ async def api_guardar_lectura(
     if es_rechazada and (body.causa_rechazo_id is None or (na_causa and body.causa_rechazo_id == na_causa.id)):
         raise HTTPException(status_code=422, detail="Debe seleccionar una causa de rechazo válida")
 
-    registro.rechazada = es_rechazada
-    registro.causa_rechazo_id = body.causa_rechazo_id if es_rechazada else (na_causa.id if na_causa else None)
+    if es_rechazada:
+        registro.rechazada = True
+        registro.causa_rechazo_id = body.causa_rechazo_id
+    else:
+        # conservar rechazo histórico; solo actualizar causa si ya estaba rechazada
+        if not registro.rechazada:
+            registro.causa_rechazo_id = na_causa.id if na_causa else None
     registro.radiologo_id = body.radiologo_id
     registro.transcriptora_id = body.transcriptora_id
     registro.lectura_radiologo = body.lectura_radiologo
@@ -416,3 +421,32 @@ async def api_anular_registro(
     db.commit()
     db.refresh(registro)
     return _reg_dict(registro)
+
+
+@router.get("/{registro_id}/historial")
+async def api_historial_registro(
+    request: Request,
+    registro_id: int,
+    db: Session = Depends(get_db),
+):
+    _require(request, db)
+    registro = db.query(models.RegistroRayosX).filter_by(id=registro_id).first()
+    if not registro:
+        raise HTTPException(status_code=404, detail="Registro no encontrado")
+    entries = (
+        db.query(models.AuditoriaRegistro)
+        .filter_by(registro_id=registro_id)
+        .order_by(models.AuditoriaRegistro.fecha_hora.desc())
+        .all()
+    )
+    return [
+        {
+            "id": e.id,
+            "accion": e.accion,
+            "fecha_hora": e.fecha_hora.isoformat() if e.fecha_hora else None,
+            "usuario": e.usuario.nombre_completo if e.usuario else "Sistema",
+            "rol": e.usuario.rol.nombre if e.usuario and e.usuario.rol else None,
+            "motivo_correccion": e.motivo_correccion,
+        }
+        for e in entries
+    ]

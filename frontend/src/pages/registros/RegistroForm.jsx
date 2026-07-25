@@ -6,6 +6,22 @@ import Alert from '../../components/Alert'
 
 const TIPO_COLORS = { RX: 'primary', TAC: 'info', ECO: 'success' }
 
+const ACCION_META = {
+  CREAR:      { color: 'success', icon: 'fa-plus',        label: 'Creación' },
+  MODIFICAR:  { color: 'primary', icon: 'fa-pen',         label: 'Modificación' },
+  LECTURA:    { color: 'success', icon: 'fa-stethoscope', label: 'Lectura radiológica' },
+  CORREGIR:   { color: 'info',    icon: 'fa-rotate-left', label: 'Corrección' },
+  ANULAR:     { color: 'danger',  icon: 'fa-ban',         label: 'Anulación' },
+  ACTIVAR:    { color: 'warning', icon: 'fa-play',        label: 'Activación' },
+}
+
+function fdt(iso) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  return d.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    + ' ' + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
+}
+
 export default function RegistroForm() {
   const { id } = useParams()
   const modo = id ? 'editar' : 'nuevo'
@@ -14,10 +30,11 @@ export default function RegistroForm() {
   const returnPage = searchParams.get('page') || '1'
   const { user, isAdmin, isTec } = useAuth()
 
-  const [cats, setCats]     = useState(null)
-  const [registro, setReg]  = useState(null)
-  const [error, setError]   = useState('')
-  const [saving, setSaving] = useState(false)
+  const [cats, setCats]         = useState(null)
+  const [registro, setReg]      = useState(null)
+  const [historial, setHistorial] = useState([])
+  const [error, setError]       = useState('')
+  const [saving, setSaving]     = useState(false)
 
   const [form, setForm] = useState({
     tipo_estudio_principal: 'RX',
@@ -121,11 +138,13 @@ export default function RegistroForm() {
 
   useEffect(() => {
     async function load() {
-      const [c, r] = await Promise.all([
+      const [c, r, h] = await Promise.all([
         api.get('/catalogs/all'),
         id ? api.get(`/registros/${id}`) : null,
+        id ? api.get(`/registros/${id}/historial`) : null,
       ])
       setCats(c.data)
+      if (h) setHistorial(h.data)
       if (r) {
         const reg = r.data
         setReg(reg)
@@ -437,6 +456,54 @@ export default function RegistroForm() {
           </button>
         </div>
       </form>
+
+      {/* Historial de cambios — solo en modo editar */}
+      {modo === 'editar' && (
+        <div className="card mt-3">
+          <div className="card-header fw-semibold bg-dark text-white d-flex align-items-center gap-2">
+            <i className="fa-solid fa-clock-rotate-left" />
+            Historial de Cambios
+            <span className="badge bg-secondary ms-auto">{historial.length}</span>
+          </div>
+          <div className="card-body p-0">
+            {historial.length === 0 ? (
+              <p className="text-muted p-3 mb-0 small">Sin registros de auditoría.</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-sm table-hover align-middle mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th style={{ width: 155 }}>Fecha / Hora</th>
+                      <th style={{ width: 140 }}>Acción</th>
+                      <th>Usuario</th>
+                      <th>Perfil</th>
+                      <th>Motivo de corrección</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historial.map(h => {
+                      const meta = ACCION_META[h.accion] || { color: 'secondary', icon: 'fa-circle', label: h.accion }
+                      return (
+                        <tr key={h.id}>
+                          <td className="small text-muted">{fdt(h.fecha_hora)}</td>
+                          <td>
+                            <span className={`badge bg-${meta.color}`}>
+                              <i className={`fa-solid ${meta.icon} me-1`} />{meta.label}
+                            </span>
+                          </td>
+                          <td className="small">{h.usuario || '—'}</td>
+                          <td>{h.rol && <span className="badge bg-light text-dark border small">{h.rol}</span>}</td>
+                          <td className="small fst-italic text-muted">{h.motivo_correccion || '—'}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   )
 }

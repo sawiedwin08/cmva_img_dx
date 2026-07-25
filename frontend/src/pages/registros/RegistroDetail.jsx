@@ -5,7 +5,16 @@ import { useAuth } from '../../contexts/AuthContext'
 import Alert from '../../components/Alert'
 
 const TIPOS = { RX: 'primary', TAC: 'info', ECO: 'success' }
-const ESTADOS = { PENDIENTE: 'warning', LEIDO: 'success', CORREGIDO: 'info', ANULADO: 'secondary' }
+const ESTADOS = { PENDIENTE: 'warning', LEIDO: 'success', CORREGIDO: 'info', ANULADO: 'secondary', 'POR CARGAR': 'secondary' }
+
+const ACCION_META = {
+  CREAR:      { color: 'success',   icon: 'fa-plus',          label: 'Creación' },
+  MODIFICAR:  { color: 'primary',   icon: 'fa-pen',           label: 'Modificación' },
+  LECTURA:    { color: 'success',   icon: 'fa-stethoscope',   label: 'Lectura radiológica' },
+  CORREGIR:   { color: 'info',      icon: 'fa-rotate-left',   label: 'Corrección' },
+  ANULAR:     { color: 'danger',    icon: 'fa-ban',           label: 'Anulación' },
+  ACTIVAR:    { color: 'warning',   icon: 'fa-play',          label: 'Activación' },
+}
 
 function fdt(iso) {
   if (!iso) return '—'
@@ -27,15 +36,19 @@ export default function RegistroDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { canCreate, canLectura, isAdmin } = useAuth()
-  const [reg, setReg]     = useState(null)
-  const [error, setError] = useState('')
+  const [reg, setReg]         = useState(null)
+  const [historial, setHistorial] = useState([])
+  const [error, setError]     = useState('')
   const [anularModal, setAnularModal] = useState(false)
-  const [motivo, setMotivo] = useState('')
+  const [motivo, setMotivo]   = useState('')
   const [anulando, setAnulando] = useState(false)
 
   useEffect(() => {
-    api.get(`/registros/${id}`)
-      .then(r => setReg(r.data))
+    Promise.all([
+      api.get(`/registros/${id}`),
+      api.get(`/registros/${id}/historial`),
+    ])
+      .then(([r, h]) => { setReg(r.data); setHistorial(h.data) })
       .catch(() => setError('No se pudo cargar el registro'))
   }, [id])
 
@@ -63,7 +76,7 @@ export default function RegistroDetail() {
         <h4 className="mb-0 fw-bold flex-grow-1">
           <code>{reg.codigo_registro}</code>
           <span className={`badge bg-${TIPOS[reg.tipo_estudio_principal]} ms-2`}>{reg.tipo_estudio_principal}</span>
-          <span className={`badge bg-${ESTADOS[reg.estado]} ms-1`}>{reg.estado}</span>
+          <span className={`badge bg-${ESTADOS[reg.estado] || 'secondary'} ms-1`}>{reg.estado}</span>
           {reg.rechazada && <span className="badge bg-danger ms-1">RECHAZADA</span>}
         </h4>
         <div className="d-flex gap-2">
@@ -72,9 +85,10 @@ export default function RegistroDetail() {
               <i className="fa-solid fa-pen me-1" />Editar
             </Link>
           )}
-          {canLectura && reg.estado === 'PENDIENTE' && (
+          {canLectura && (reg.estado === 'PENDIENTE' || reg.estado === 'CORREGIDO') && (
             <Link to={`/registros/${id}/lectura`} className="btn btn-success btn-sm">
-              <i className="fa-solid fa-stethoscope me-1" />Completar Lectura
+              <i className="fa-solid fa-stethoscope me-1" />
+              {reg.estado === 'CORREGIDO' ? 'Re-leer' : 'Completar Lectura'}
             </Link>
           )}
           {isAdmin && reg.estado !== 'ANULADO' && (
@@ -133,12 +147,16 @@ export default function RegistroDetail() {
             <p className="text-muted mb-0">
               <i className="fa-solid fa-clock me-2" />Pendiente de lectura por el radiólogo
             </p>
+          ) : reg.estado === 'CORREGIDO' && !reg.radiologo_id ? (
+            <p className="text-muted mb-0">
+              <i className="fa-solid fa-rotate-left me-2" />Corregido por el tecnólogo — pendiente de re-lectura
+            </p>
           ) : (
             <div className="row">
-              <Row label="Fecha/Hora Lectura"      value={fdt(reg.fecha_hora_lectura_radiologo)} />
+              <Row label="Fecha/Hora Lectura"           value={fdt(reg.fecha_hora_lectura_radiologo)} />
               <Row label="Radiólogo (LECTURA_RADIOLOGO)" value={reg.radiologo_nombre} />
-              <Row label="Transcriptora"            value={reg.transcriptora_nombre} />
-              <Row label="Rechazada"                value={reg.rechazada ? 'SI' : 'NO'} />
+              <Row label="Transcriptora"                 value={reg.transcriptora_nombre} />
+              <Row label="Rechazada"                     value={reg.rechazada ? 'SI' : 'NO'} />
               {reg.rechazada && <Row label="Causa de Rechazo" value={reg.causa_rechazo} />}
               {reg.lectura_radiologo && (
                 <div className="col-12 mb-2">
@@ -156,6 +174,59 @@ export default function RegistroDetail() {
           <strong>Motivo de anulación:</strong> {reg.motivo_anulacion}
         </div>
       )}
+
+      {/* Historial de cambios */}
+      <div className="card mb-3">
+        <div className="card-header fw-semibold bg-dark text-white d-flex align-items-center gap-2">
+          <i className="fa-solid fa-clock-rotate-left" />
+          Historial de Cambios
+          <span className="badge bg-secondary ms-auto">{historial.length}</span>
+        </div>
+        <div className="card-body p-0">
+          {historial.length === 0 ? (
+            <p className="text-muted p-3 mb-0">Sin registros de auditoría.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-sm table-hover align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th style={{ width: 155 }}>Fecha / Hora</th>
+                    <th style={{ width: 110 }}>Acción</th>
+                    <th>Usuario</th>
+                    <th>Perfil</th>
+                    <th>Motivo de corrección</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historial.map(h => {
+                    const meta = ACCION_META[h.accion] || { color: 'secondary', icon: 'fa-circle', label: h.accion }
+                    return (
+                      <tr key={h.id}>
+                        <td className="small text-muted">{fdt(h.fecha_hora)}</td>
+                        <td>
+                          <span className={`badge bg-${meta.color}`}>
+                            <i className={`fa-solid ${meta.icon} me-1`} />
+                            {meta.label}
+                          </span>
+                        </td>
+                        <td className="small">{h.usuario || '—'}</td>
+                        <td>
+                          {h.rol && (
+                            <span className="badge bg-light text-dark border small">{h.rol}</span>
+                          )}
+                        </td>
+                        <td className="small fst-italic text-muted">
+                          {h.motivo_correccion || '—'}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Modal anular */}
       {anularModal && (

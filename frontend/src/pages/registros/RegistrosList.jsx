@@ -54,8 +54,13 @@ export default function RegistrosList() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
+      const apiParams = { ...params, page }
+      if (apiParams.estado === 'RECHAZADA') {
+        delete apiParams.estado
+        apiParams.rechazada = 'SI'
+      }
       const [r, c] = await Promise.all([
-        api.get('/registros', { params: { ...params, page } }),
+        api.get('/registros', { params: apiParams }),
         cats.tecnologos.length ? null : api.get('/catalogs/all'),
       ])
       setData(r.data)
@@ -137,6 +142,7 @@ export default function RegistrosList() {
                 <option>LEIDO</option>
                 <option>CORREGIDO</option>
                 <option>ANULADO</option>
+                <option value="RECHAZADA">RECHAZADA</option>
               </select>
             </div>
             <div className="col-md-2">
@@ -203,6 +209,7 @@ export default function RegistrosList() {
                       { val: 'LEIDO', label: 'Leído' },
                       { val: 'CORREGIDO', label: 'Corregido' },
                       { val: 'ANULADO', label: 'Anulado' },
+                      { val: 'RECHAZADA', label: 'Rechazada' },
                     ]}
                     currentValue={params.estado || ''}
                     onSelect={setParam}

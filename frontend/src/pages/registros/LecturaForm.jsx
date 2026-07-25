@@ -4,6 +4,15 @@ import api from '../../api/client'
 import { useAuth } from '../../contexts/AuthContext'
 import Alert from '../../components/Alert'
 
+const ACCION_META = {
+  CREAR:      { color: 'success',   icon: 'fa-plus',          label: 'Creación' },
+  MODIFICAR:  { color: 'primary',   icon: 'fa-pen',           label: 'Modificación' },
+  LECTURA:    { color: 'success',   icon: 'fa-stethoscope',   label: 'Lectura radiológica' },
+  CORREGIR:   { color: 'info',      icon: 'fa-rotate-left',   label: 'Corrección' },
+  ANULAR:     { color: 'danger',    icon: 'fa-ban',           label: 'Anulación' },
+  ACTIVAR:    { color: 'warning',   icon: 'fa-play',          label: 'Activación' },
+}
+
 function fdt(iso) {
   if (!iso) return '—'
   const d = new Date(iso)
@@ -24,10 +33,11 @@ export default function LecturaForm() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [reg, setReg]     = useState(null)
-  const [cats, setCats]   = useState(null)
-  const [error, setError] = useState('')
-  const [saving, setSaving] = useState(false)
+  const [reg, setReg]         = useState(null)
+  const [cats, setCats]       = useState(null)
+  const [historial, setHistorial] = useState([])
+  const [error, setError]     = useState('')
+  const [saving, setSaving]   = useState(false)
 
   const [form, setForm] = useState({
     rechazada: 'NO',
@@ -39,13 +49,14 @@ export default function LecturaForm() {
 
   useEffect(() => {
     async function load() {
-      const [r, c] = await Promise.all([
+      const [r, c, h] = await Promise.all([
         api.get(`/registros/${id}`),
         api.get('/catalogs/all'),
+        api.get(`/registros/${id}/historial`),
       ])
       setReg(r.data)
       setCats(c.data)
-      // Prellenar radiólogo del usuario actual
+      setHistorial(h.data)
       const rad = c.data.radiologos.find(r => r.nombre === user?.nombre_completo)
       if (rad) setForm(f => ({ ...f, radiologo_id: rad.id }))
     }
@@ -126,6 +137,56 @@ export default function LecturaForm() {
           </div>
         </div>
       </div>
+
+      {/* Historial de cambios */}
+      <div className="card mb-3">
+          <div className="card-header fw-semibold bg-dark text-white d-flex align-items-center gap-2">
+            <i className="fa-solid fa-clock-rotate-left" />
+            Historial de Cambios
+            <span className="badge bg-secondary ms-auto">{historial.length}</span>
+          </div>
+          <div className="card-body p-0">
+            {historial.length === 0 ? (
+              <p className="text-muted p-3 mb-0 small">Sin registros de auditoría.</p>
+            ) : (
+            <div className="table-responsive">
+              <table className="table table-sm table-hover align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th style={{ width: 155 }}>Fecha / Hora</th>
+                    <th style={{ width: 140 }}>Acción</th>
+                    <th>Usuario</th>
+                    <th>Perfil</th>
+                    <th>Motivo de corrección</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historial.map(h => {
+                    const meta = ACCION_META[h.accion] || { color: 'secondary', icon: 'fa-circle', label: h.accion }
+                    return (
+                      <tr key={h.id}>
+                        <td className="small text-muted">{fdt(h.fecha_hora)}</td>
+                        <td>
+                          <span className={`badge bg-${meta.color}`}>
+                            <i className={`fa-solid ${meta.icon} me-1`} />{meta.label}
+                          </span>
+                        </td>
+                        <td className="small">{h.usuario || '—'}</td>
+                        <td>
+                          {h.rol && (
+                            <span className="badge bg-light text-dark border small">{h.rol}</span>
+                          )}
+                        </td>
+                        <td className="small fst-italic text-muted">{h.motivo_correccion || '—'}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            )}
+          </div>
+        </div>
 
       {/* Formulario del radiólogo */}
       <form onSubmit={handleSubmit}>
