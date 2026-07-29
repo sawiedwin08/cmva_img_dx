@@ -132,6 +132,7 @@ class RegistroRayosX(Base):
     identificacion = Column(String(30), nullable=False)
     nombre_paciente = Column(String(200), nullable=False)
     contrastado_si_no = Column(String(2), nullable=False, default='NO')
+    toma_3d_si_no = Column(String(2), nullable=False, default='NO')
     estudio_id = Column(Integer, ForeignKey("estudios.id"), nullable=False)
     codigo_tac = Column(String(50), nullable=True)
     servicio_id = Column(Integer, ForeignKey("servicios.id"), nullable=False)

@@ -28,6 +28,7 @@ def _reg_dict(r: models.RegistroRayosX) -> dict:
         "identificacion": r.identificacion,
         "nombre_paciente": r.nombre_paciente,
         "contrastado_si_no": r.contrastado_si_no or "NO",
+        "toma_3d_si_no": r.toma_3d_si_no or "NO",
         "estudio_id": r.estudio_id,
         "estudio_nombre": r.estudio.nombre if r.estudio else None,
         "codigo_tac": r.codigo_tac,
@@ -147,6 +148,7 @@ class RegistroCreateBody(BaseModel):
     identificacion: str
     nombre_paciente: str
     contrastado_si_no: str = "NO"
+    toma_3d_si_no: str = "NO"
     estudio_id: int
     codigo_tac: Optional[str] = None
     servicio_id: int
@@ -190,6 +192,7 @@ async def api_crear_registro(
 
     tipo = (body.tipo_estudio_principal or "RX").upper()
     contrastado = (body.contrastado_si_no or "NO").upper() if tipo == "TAC" else "NO"
+    toma_3d = (body.toma_3d_si_no or "NO").upper() if tipo == "TAC" else "NO"
     na_causa = db.query(models.CausaRechazo).filter_by(descripcion="NA").first()
     codigo = utils.generate_codigo_registro(db, tipo)
 
@@ -205,6 +208,7 @@ async def api_crear_registro(
         identificacion=body.identificacion.strip(),
         nombre_paciente=body.nombre_paciente.strip().upper(),
         contrastado_si_no=contrastado,
+        toma_3d_si_no=toma_3d,
         estudio_id=body.estudio_id,
         codigo_tac=body.codigo_tac.strip() if (body.codigo_tac and tipo == "TAC") else None,
         servicio_id=body.servicio_id,
@@ -244,6 +248,7 @@ class RegistroUpdateBody(BaseModel):
     identificacion: str
     nombre_paciente: str
     contrastado_si_no: str = "NO"
+    toma_3d_si_no: str = "NO"
     estudio_id: int
     codigo_tac: Optional[str] = None
     servicio_id: int
@@ -294,11 +299,13 @@ async def api_editar_registro(
 
     tipo = (body.tipo_estudio_principal or "RX").upper()
     contrastado = (body.contrastado_si_no or "NO").upper() if tipo == "TAC" else "NO"
+    toma_3d = (body.toma_3d_si_no or "NO").upper() if tipo == "TAC" else "NO"
     registro.tipo_estudio_principal = tipo
     registro.fecha_hora_orden = fecha_orden_dt
     registro.identificacion = body.identificacion.strip()
     registro.nombre_paciente = body.nombre_paciente.strip().upper()
     registro.contrastado_si_no = contrastado
+    registro.toma_3d_si_no = toma_3d
     registro.estudio_id = body.estudio_id
     registro.codigo_tac = body.codigo_tac.strip() if (body.codigo_tac and tipo == "TAC") else None
     registro.servicio_id = body.servicio_id

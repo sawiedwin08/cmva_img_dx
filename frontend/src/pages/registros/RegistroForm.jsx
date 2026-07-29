@@ -42,6 +42,7 @@ export default function RegistroForm() {
     identificacion: '',
     nombre_paciente: '',
     contrastado_si_no: 'NO',
+    toma_3d_si_no: 'NO',
     estudio_id: '',
     codigo_tac: '',
     servicio_id: '',
@@ -156,6 +157,7 @@ export default function RegistroForm() {
           identificacion: reg.identificacion || '',
           nombre_paciente: reg.nombre_paciente || '',
           contrastado_si_no: reg.contrastado_si_no || 'NO',
+          toma_3d_si_no: reg.toma_3d_si_no || 'NO',
           estudio_id: reg.estudio_id || '',
           codigo_tac: reg.codigo_tac || '',
           servicio_id: reg.servicio_id || '',
@@ -206,6 +208,7 @@ export default function RegistroForm() {
         reporte_id: form.reporte_id ? parseInt(form.reporte_id) : null,
         codigo_tac: esTAC ? form.codigo_tac || null : null,
         contrastado_si_no: esTAC ? form.contrastado_si_no : 'NO',
+        toma_3d_si_no: esTAC ? form.toma_3d_si_no : 'NO',
       }
       if (modo === 'nuevo') {
         await api.post('/registros', { ...body, estado: estadoInicial })
@@ -328,6 +331,14 @@ export default function RegistroForm() {
                     <label className="form-label">Contrastado</label>
                     <select className="form-select" value={form.contrastado_si_no}
                       onChange={e => set('contrastado_si_no', e.target.value)}>
+                      <option value="NO">NO</option>
+                      <option value="SI">SI</option>
+                    </select>
+                  </div>
+                  <div className="col-md-4">
+                    <label className="form-label">Toma 3D</label>
+                    <select className="form-select" value={form.toma_3d_si_no}
+                      onChange={e => set('toma_3d_si_no', e.target.value)}>
                       <option value="NO">NO</option>
                       <option value="SI">SI</option>
                     </select>

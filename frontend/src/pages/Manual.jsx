@@ -351,6 +351,7 @@ export default function Manual() {
                         <tr><td>Servicio</td><td>Servicio de origen del paciente (urgencias, consulta externa, etc.)</td><td className="text-center text-danger fw-bold">Sí</td></tr>
                         <tr><td>Profesional (Médico)</td><td>Médico que ordenó el estudio</td><td className="text-center text-muted">No</td></tr>
                         <tr><td>Contrastado</td><td>Solo TAC: SI / NO si se usó contraste</td><td className="text-center text-muted">Solo TAC</td></tr>
+                        <tr><td>Toma 3D</td><td>Solo TAC: SI / NO si el estudio incluyó toma 3D</td><td className="text-center text-muted">Solo TAC</td></tr>
                         <tr><td>Código TAC</td><td>Solo TAC: código interno del equipo</td><td className="text-center text-muted">No</td></tr>
                         <tr><td>Volumen Contraste (ml)</td><td>Solo TAC contrastado: 30 – 200 ml</td><td className="text-center text-muted">Solo TAC+SI</td></tr>
                       </tbody>

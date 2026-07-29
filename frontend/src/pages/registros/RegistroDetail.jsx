@@ -113,6 +113,9 @@ export default function RegistroDetail() {
             <Row label="Identificación"    value={reg.identificacion} />
             <Row label="Nombre y Apellido" value={reg.nombre_paciente} />
             <Row label="Contrastado"       value={reg.contrastado_si_no} />
+            {reg.tipo_estudio_principal === 'TAC' && (
+              <Row label="Toma 3D" value={reg.toma_3d_si_no} />
+            )}
             <Row label="Tipo Estudio"      value={reg.estudio_nombre} />
             {reg.tipo_estudio_principal === 'TAC' && (
               <Row label="Código TAC" value={reg.codigo_tac} />

@@ -24,6 +24,7 @@ def _run_migrations(eng):
     new_reg_cols = [
         ("tipo_estudio_principal", "VARCHAR(10) NOT NULL DEFAULT 'RX'"),
         ("contrastado_si_no",      "VARCHAR(2)  NOT NULL DEFAULT 'NO'"),
+        ("toma_3d_si_no",          "VARCHAR(2)  NOT NULL DEFAULT 'NO'"),
         ("codigo_tac",             "VARCHAR(50)"),
         ("volumen_contraste_ml",   "FLOAT"),
         ("profesional_id",         "INTEGER"),

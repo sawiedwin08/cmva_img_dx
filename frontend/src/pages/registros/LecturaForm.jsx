@@ -116,6 +116,9 @@ export default function LecturaForm() {
             <InfoRow label="Paciente"          value={reg.nombre_paciente} />
             <InfoRow label="Tipo"              value={reg.tipo_estudio_principal} />
             <InfoRow label="Contrastado"       value={reg.contrastado_si_no} />
+            {reg.tipo_estudio_principal === 'TAC' && (
+              <InfoRow label="Toma 3D" value={reg.toma_3d_si_no} />
+            )}
             <InfoRow label="Estudio"           value={reg.estudio_nombre} />
             {reg.codigo_tac && <InfoRow label="Código TAC" value={reg.codigo_tac} />}
             <InfoRow label="Servicio"          value={reg.servicio_nombre} />
