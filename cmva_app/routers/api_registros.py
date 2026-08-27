@@ -369,7 +369,7 @@ async def api_guardar_lectura(
     registro.transcriptora_id = body.transcriptora_id
     registro.lectura_radiologo = body.lectura_radiologo
     registro.fecha_hora_lectura_radiologo = utils.now_colombia()
-    registro.estado = "LEIDO"
+    registro.estado = "PENDIENTE" if es_rechazada else "LEIDO"
     registro.leido_por_id = user.id
     utils.log_audit(db, "LECTURA", user.id, registro.id, ip=request.client.host if request.client else None)
     db.commit()

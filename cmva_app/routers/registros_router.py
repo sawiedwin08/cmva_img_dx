@@ -445,7 +445,7 @@ async def guardar_lectura(
     registro.transcriptora_id = transcriptora_id
     registro.lectura_radiologo = lectura_radiologo  # OBSERVACION_RADIOLOGO = texto del informe
     registro.fecha_hora_lectura_radiologo = utils.now_colombia()
-    registro.estado = "LEIDO"
+    registro.estado = "PENDIENTE" if es_rechazada else "LEIDO"
     registro.leido_por_id = user.id
     utils.log_audit(db, "LECTURA", user.id, registro.id, ip=request.client.host if request.client else None)
     db.commit()
