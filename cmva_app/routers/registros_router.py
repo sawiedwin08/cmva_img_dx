@@ -163,6 +163,16 @@ async def crear_registro(
     if not utils.can_create_registro(user):
         raise HTTPException(status_code=403)
 
+    import re
+    if not identificacion or not identificacion.isdigit():
+        redir_nuevo = RedirectResponse("/registros/nuevo", status_code=303)
+        utils.set_flash(redir_nuevo, "error", "Identificación debe contener solo números.")
+        return redir_nuevo
+    if not nombre_paciente or not re.match(r'^[a-záéíóúñA-ZÁÉÍÓÚÑ\s]+$', nombre_paciente):
+        redir_nuevo = RedirectResponse("/registros/nuevo", status_code=303)
+        utils.set_flash(redir_nuevo, "error", "Nombre y Apellido debe contener solo letras y espacios.")
+        return redir_nuevo
+
     vol_ml = None
     if volumen_contraste_ml and volumen_contraste_ml.strip():
         try:
@@ -305,6 +315,16 @@ async def editar_registro(
         return redir
     if not utils.can_create_registro(user):
         raise HTTPException(status_code=403)
+
+    import re
+    if not identificacion or not identificacion.isdigit():
+        redir_edit = RedirectResponse(f"/registros/{registro_id}/editar", status_code=303)
+        utils.set_flash(redir_edit, "error", "Identificación debe contener solo números.")
+        return redir_edit
+    if not nombre_paciente or not re.match(r'^[a-záéíóúñA-ZÁÉÍÓÚÑ\s]+$', nombre_paciente):
+        redir_edit = RedirectResponse(f"/registros/{registro_id}/editar", status_code=303)
+        utils.set_flash(redir_edit, "error", "Nombre y Apellido debe contener solo letras y espacios.")
+        return redir_edit
 
     vol_ml_e = None
     if volumen_contraste_ml and volumen_contraste_ml.strip():

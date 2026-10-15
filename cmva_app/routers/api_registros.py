@@ -173,6 +173,12 @@ async def api_crear_registro(
     if not utils.can_create_registro(user):
         raise HTTPException(status_code=403, detail="Sin permiso para crear registros")
 
+    import re
+    if not body.identificacion or not body.identificacion.isdigit():
+        raise HTTPException(status_code=422, detail="Identificación debe contener solo números")
+    if not body.nombre_paciente or not re.match(r'^[a-záéíóúñA-ZÁÉÍÓÚÑ\s]+$', body.nombre_paciente):
+        raise HTTPException(status_code=422, detail="Nombre y Apellido debe contener solo letras y espacios")
+
     try:
         fecha_orden_dt = datetime.fromisoformat(body.fecha_hora_orden)
     except ValueError:
@@ -280,6 +286,11 @@ async def api_editar_registro(
     if registro.estado == "ANULADO":
         raise HTTPException(status_code=422, detail="No se puede editar un registro anulado")
 
+    import re
+    if not body.identificacion or not body.identificacion.isdigit():
+        raise HTTPException(status_code=422, detail="Identificación debe contener solo números")
+    if not body.nombre_paciente or not re.match(r'^[a-záéíóúñA-ZÁÉÍÓÚÑ\s]+$', body.nombre_paciente):
+        raise HTTPException(status_code=422, detail="Nombre y Apellido debe contener solo letras y espacios")
 
     try:
         fecha_orden_dt = datetime.fromisoformat(body.fecha_hora_orden)

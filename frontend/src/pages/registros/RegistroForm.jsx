@@ -289,14 +289,16 @@ export default function RegistroForm() {
                 <label className="form-label">Identificación <span className="text-danger">*</span></label>
                 <input type="text" className={`form-control${inv('identificacion')}`}
                   value={form.identificacion}
-                  onChange={e => set('identificacion', e.target.value)} />
+                  onChange={e => set('identificacion', e.target.value.replace(/[^\d]/g, ''))}
+                  placeholder="Solo números" />
                 {errMsg('identificacion')}
               </div>
               <div className="col-md-6">
                 <label className="form-label">Nombre y Apellido <span className="text-danger">*</span></label>
                 <input type="text" className={`form-control${inv('nombre_paciente')}`}
                   value={form.nombre_paciente}
-                  onChange={e => set('nombre_paciente', e.target.value)} />
+                  onChange={e => set('nombre_paciente', e.target.value.replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ\s]/g, ''))}
+                  placeholder="Solo letras y espacios" />
                 {errMsg('nombre_paciente')}
               </div>
               <div className="col-md-4">
