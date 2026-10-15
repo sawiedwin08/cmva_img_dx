@@ -319,7 +319,10 @@ async def api_editar_registro(
     registro.reporte_id = body.reporte_id
     registro.modificado_por_id = user.id
     if utils.can_create_registro(user) and body.motivo_correccion:
-        registro.estado = "CORREGIDO"
+        if registro.rechazada:
+            registro.estado = "PENDIENTE"
+        else:
+            registro.estado = "CORREGIDO"
 
     utils.log_audit(db, "MODIFICAR", user.id, registro.id, motivo=body.motivo_correccion,
                     ip=request.client.host if request.client else None)
@@ -334,6 +337,7 @@ class LecturaBody(BaseModel):
     radiologo_id: int
     transcriptora_id: Optional[int] = None
     lectura_radiologo: Optional[str] = None
+    observaciones_radiologo: Optional[str] = None
 
 
 @router.post("/{registro_id}/lectura")
@@ -361,13 +365,14 @@ async def api_guardar_lectura(
     if es_rechazada:
         registro.rechazada = True
         registro.causa_rechazo_id = body.causa_rechazo_id
+        registro.observaciones_radiologo = body.observaciones_radiologo
     else:
         # conservar rechazo histórico; solo actualizar causa si ya estaba rechazada
         if not registro.rechazada:
             registro.causa_rechazo_id = na_causa.id if na_causa else None
+        registro.lectura_radiologo = body.lectura_radiologo
     registro.radiologo_id = body.radiologo_id
     registro.transcriptora_id = body.transcriptora_id
-    registro.lectura_radiologo = body.lectura_radiologo
     registro.fecha_hora_lectura_radiologo = utils.now_colombia()
     registro.estado = "PENDIENTE" if es_rechazada else "LEIDO"
     registro.leido_por_id = user.id

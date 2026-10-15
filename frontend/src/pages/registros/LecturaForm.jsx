@@ -45,6 +45,7 @@ export default function LecturaForm() {
     radiologo_id: '',
     transcriptora_id: '',
     lectura_radiologo: '',
+    observaciones_radiologo: '',
   })
 
   useEffect(() => {
@@ -209,14 +210,23 @@ export default function LecturaForm() {
               </div>
 
               {form.rechazada === 'SI' && (
-                <div className="col-md-4">
-                  <label className="form-label">Causa de Rechazo <span className="text-danger">*</span></label>
-                  <select className="form-select" value={form.causa_rechazo_id}
-                    onChange={e => set('causa_rechazo_id', e.target.value)} required>
-                    <option value="">Seleccione...</option>
-                    {causasValidas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
-                  </select>
-                </div>
+                <>
+                  <div className="col-md-4">
+                    <label className="form-label">Causa de Rechazo <span className="text-danger">*</span></label>
+                    <select className="form-select" value={form.causa_rechazo_id}
+                      onChange={e => set('causa_rechazo_id', e.target.value)} required>
+                      <option value="">Seleccione...</option>
+                      {causasValidas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
+                    </select>
+                  </div>
+                  <div className="col-12">
+                    <label className="form-label">Nota de Rechazo (Explicar por qué)</label>
+                    <textarea className="form-control" rows={3}
+                      placeholder="Escriba la razón del rechazo y qué debe corregir el tecnólogo..."
+                      value={form.observaciones_radiologo}
+                      onChange={e => set('observaciones_radiologo', e.target.value)} />
+                  </div>
+                </>
               )}
 
               <div className="col-md-4">
@@ -239,15 +249,17 @@ export default function LecturaForm() {
                 </select>
               </div>
 
-              <div className="col-12">
-                <label className="form-label">
-                  OBSERVACION_RADIOLOGO (Texto del informe)
-                </label>
-                <textarea className="form-control" rows={5}
-                  placeholder="Escriba el informe radiológico completo aquí..."
-                  value={form.lectura_radiologo}
-                  onChange={e => set('lectura_radiologo', e.target.value)} />
-              </div>
+              {form.rechazada !== 'SI' && (
+                <div className="col-12">
+                  <label className="form-label">
+                    OBSERVACION_RADIOLOGO (Texto del informe)
+                  </label>
+                  <textarea className="form-control" rows={5}
+                    placeholder="Escriba el informe radiológico completo aquí..."
+                    value={form.lectura_radiologo}
+                    onChange={e => set('lectura_radiologo', e.target.value)} />
+                </div>
+              )}
             </div>
           </div>
         </div>

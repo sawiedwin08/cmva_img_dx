@@ -367,7 +367,10 @@ async def editar_registro(
     registro.reporte_id = reporte_id
     registro.modificado_por_id = user.id
     if utils.is_admin(user) and motivo_correccion:
-        registro.estado = "CORREGIDO"
+        if registro.rechazada:
+            registro.estado = "PENDIENTE"
+        else:
+            registro.estado = "CORREGIDO"
 
     utils.log_audit(db, "MODIFICAR", user.id, registro.id, motivo=motivo_correccion,
                     ip=request.client.host if request.client else None)
@@ -413,6 +416,7 @@ async def guardar_lectura(
     radiologo_id: Optional[int] = Form(None),
     transcriptora_id: Optional[int] = Form(None),
     lectura_radiologo: Optional[str] = Form(None),  # OBSERVACION_RADIOLOGO = texto del informe
+    observaciones_radiologo: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
     user, redir = _require_user(request, db)
@@ -443,7 +447,10 @@ async def guardar_lectura(
     registro.causa_rechazo_id = causa_rechazo_id
     registro.radiologo_id = radiologo_id          # LECTURA_RADIOLOGO = nombre del radiólogo
     registro.transcriptora_id = transcriptora_id
-    registro.lectura_radiologo = lectura_radiologo  # OBSERVACION_RADIOLOGO = texto del informe
+    if es_rechazada:
+        registro.observaciones_radiologo = observaciones_radiologo
+    else:
+        registro.lectura_radiologo = lectura_radiologo  # OBSERVACION_RADIOLOGO = texto del informe
     registro.fecha_hora_lectura_radiologo = utils.now_colombia()
     registro.estado = "PENDIENTE" if es_rechazada else "LEIDO"
     registro.leido_por_id = user.id

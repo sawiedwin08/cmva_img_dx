@@ -230,7 +230,9 @@ export default function RegistroForm() {
 
   if (!cats) return <div className="text-center py-5"><div className="spinner-border text-primary" /></div>
 
-  const needsMotivo = modo === 'editar' && (isAdmin || isTec) && registro && ['LEIDO', 'CORREGIDO'].includes(registro.estado)
+  const needsMotivo = modo === 'editar' && (isAdmin || isTec) && registro && (
+    ['LEIDO', 'CORREGIDO'].includes(registro.estado) || registro.rechazada
+  )
 
   return (
     <>
@@ -436,14 +438,25 @@ export default function RegistroForm() {
           </div>
         </div>
 
+        {registro?.rechazada && (
+          <div className="alert alert-warning mb-3">
+            <i className="fa-solid fa-circle-exclamation me-2" />
+            <strong>Este estudio fue rechazado</strong> — Corrija los datos según la nota del radiólogo y agregue una nota explicando qué corrigió.
+          </div>
+        )}
+
         {needsMotivo && (
-          <div className="card mb-3 border-warning">
-            <div className="card-header bg-warning">Motivo de Corrección</div>
+          <div className={`card mb-3 border-${registro?.rechazada ? 'danger' : 'warning'}`}>
+            <div className={`card-header bg-${registro?.rechazada ? 'danger' : 'warning'}`}>
+              {registro?.rechazada ? 'Nota de Corrección' : 'Motivo de Corrección'}
+            </div>
             <div className="card-body">
               <textarea
                 className="form-control"
                 rows={2}
-                placeholder="Describa el motivo de la corrección (opcional)"
+                placeholder={registro?.rechazada
+                  ? "Describa qué corrigió en este estudio..."
+                  : "Describa el motivo de la corrección (opcional)"}
                 value={form.motivo_correccion}
                 onChange={e => set('motivo_correccion', e.target.value)} />
             </div>

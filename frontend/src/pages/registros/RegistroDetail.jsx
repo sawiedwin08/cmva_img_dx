@@ -146,10 +146,28 @@ export default function RegistroDetail() {
           <i className="fa-solid fa-stethoscope me-2" />Lectura Radiológica
         </div>
         <div className="card-body">
-          {reg.estado === 'PENDIENTE' ? (
+          {reg.estado === 'PENDIENTE' && !reg.rechazada ? (
             <p className="text-muted mb-0">
               <i className="fa-solid fa-clock me-2" />Pendiente de lectura por el radiólogo
             </p>
+          ) : reg.estado === 'PENDIENTE' && reg.rechazada ? (
+            <div className="alert alert-warning mb-0">
+              <h6 className="alert-heading mb-2">
+                <i className="fa-solid fa-circle-xmark me-2" />Estudio Rechazado
+              </h6>
+              <div className="row">
+                <div className="col-md-6">
+                  <small className="text-muted d-block">Causa de Rechazo</small>
+                  <span className="fw-semibold">{reg.causa_rechazo || '—'}</span>
+                </div>
+              </div>
+              {reg.observaciones_radiologo && (
+                <div className="mt-2">
+                  <small className="text-muted d-block">Nota del Radiólogo</small>
+                  <div className="border rounded p-2 bg-light small">{reg.observaciones_radiologo}</div>
+                </div>
+              )}
+            </div>
           ) : reg.estado === 'CORREGIDO' && !reg.radiologo_id ? (
             <p className="text-muted mb-0">
               <i className="fa-solid fa-rotate-left me-2" />Corregido por el tecnólogo — pendiente de re-lectura
